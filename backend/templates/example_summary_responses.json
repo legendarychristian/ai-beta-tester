@@ -1,0 +1,27 @@
+{
+    "fund_count": 3,
+    "pass_count": 2,
+    "sentiment_values": [-2, 5, 3, 4, -3],
+    "reasoning_summary": [
+      {
+        "decision": "Pass",
+        "summary": "Concerns about high competition, regulatory risks, unproven technology, high costs, and team verification. Skepticism about cost efficiency and AI claims. Market volatility and geopolitical instability are also significant concerns. Past failures in the space are noteworthy."
+      },
+      {
+        "decision": "Fund",
+        "summary": "Excitement about disruptive technology, massive market potential, and first-mover advantage. Belief in the transformative potential of the AI-powered microsatellite network. Optimistic about scalability, profitability, and technological feasibility. Strong belief in the value of real-time data and AI analytics. Team strength and strategic partnerships are seen as crucial."
+      },
+      {
+        "decision": "Fund (Conditional)",
+        "summary": "Positive sentiment with conditions focusing on market share, problem validation with early adopters, demonstrating tangible customer value, proving business model viability, clear technology roadmap, adaptability, strong team and partnerships, sustainable profitability, data reliability, and actionable AI insights. Emphasis on practical applications and customer focus."
+      },
+      {
+        "decision": "Fund (with specific technical milestones)",
+        "summary": "Emphasis on technological innovation and scientific advancement. Focus on deep tech validation, scientific rigor, intellectual property, and achieving technical milestones. Business model and market conditions are secondary to technological readiness. Team needs strong scientific expertise. Data accuracy and AI validation are paramount."
+      },
+      {
+        "decision": "Pass",
+        "summary": "Concerns about competitive market, lack of significant differentiation, overstated technological claims, untested business model, high cost of space projects, market volatility, team's track record, cost overruns, data security, and unproven AI accuracy. Skepticism about cost-effective satellite deployment. Need hard data and proof of concept."
+      }
+    ]
+  }
