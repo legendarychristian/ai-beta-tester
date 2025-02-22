@@ -1,12 +1,23 @@
-import { useRouter } from "next/navigation"; // Use 'next/router' for older Next.js versions
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createAvatarFromConfig, avatarConfigs } from './avatarConfig';
 
 export default function Conversation() {
   const router = useRouter();
   const [demographicData, setDemographicData] = useState(null);
 
+  const supportAgentConfig = 'whiteFemale' as keyof typeof avatarConfigs;
+  const customerConfig = 'blackMale' as keyof typeof avatarConfigs;
+
+  const supportAgentAvatar = createAvatarFromConfig(supportAgentConfig);
+  const customerAvatar = createAvatarFromConfig(customerConfig);
+
+  const getSalesPersonLabel = (config: keyof typeof avatarConfigs): string => {
+    return config.includes('Female') ? 'Saleswoman' : 'Salesman';
+  };
+
   const handleAnalyticsClick = () => {
-      router.push("/charts"); // Navigate to /charts page
+    router.push("/charts");
   };
 
   return (
@@ -18,10 +29,24 @@ export default function Conversation() {
           </h1>
           <div className="flex flex-row w-full h-3/4 gap-48 px-24">
             <div className="flex flex-col w-1/2 h-full rounded-lg">
-              <div className="flex w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg"></div>
+              <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
+                <img 
+                  src={supportAgentAvatar.toDataUri()}
+                  alt="Sales Agent Avatar"
+                  className="w-48 h-48 mb-4"
+                />
+                <p className="text-lg font-semibold text-purple-800">{getSalesPersonLabel(supportAgentConfig)}</p>
+              </div>
             </div>
             <div className="flex flex-col w-1/2 h-full rounded-lg">
-              <div className="flex w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg"></div>
+              <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
+                <img 
+                  src={customerAvatar.toDataUri()}
+                  alt="Customer Avatar"
+                  className="w-48 h-48 mb-4"
+                />
+                <p className="text-lg font-semibold text-purple-800">Customer</p>
+              </div>
             </div>
           </div>
           <div className="flex flex-row items-center justify-center w-full h-1/4 gap-12">
@@ -32,8 +57,8 @@ export default function Conversation() {
               Play
             </button>
             <button 
-            className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]"
-            onClick={handleAnalyticsClick}>
+              className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]"
+              onClick={handleAnalyticsClick}>
               Analytics
             </button>
           </div>
@@ -42,4 +67,3 @@ export default function Conversation() {
     </section>
   );
 }
-
