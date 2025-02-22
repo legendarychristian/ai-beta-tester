@@ -43,16 +43,17 @@ async def start_conversation(
     file: Optional[UploadFile] = File(None)
 ):
     try:
-        convo_results = process_convo(product_info) 
+        if file:
+            # content = await file.read()
+            # Optionally save or process the file here
+            print(f"Received file: {file.filename}")
+            # print(content)
+            
+        convo_results = await process_convo(product_info, file)
         eval_results = evaluate_multiple_pitches(convo_results)
         demographic_analysis = analyze_demographics_with_defaults(convo_results)
         scores = calculate_scores(eval_results)
         
-        if file:
-            content = await file.read()
-            # Optionally save or process the file here
-            print(f"Received file: {file.filename}, size: {len(content)} bytes")
-
         return {
             "status": "success",
             "convo_results": convo_results,
@@ -110,12 +111,6 @@ async def text_to_speech(conversation: dict):
         # Clean up the temporary file
         os.remove("audio_files/audio.mp3")
 
-        # Return the final WAV file as a response
-        # return FileResponse(output_path, media_type="audio/wav")
-        # return {
-        #     "audio": FileResponse(output_path, media_type="audio/wav"),
-        #     "speech_switch": speech_switch,
-        # }
         return FileResponse(output_path, media_type="audio/wav", headers={"speech_switch": str(speech_switch)})
 
     except Exception as e:
