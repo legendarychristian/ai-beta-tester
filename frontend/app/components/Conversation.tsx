@@ -1,4 +1,11 @@
+import { useRouter } from "next/navigation"; // Use 'next/router' for older Next.js versions
+
 export default function Conversation() {
+  const router = useRouter();
+
+  const handleAnalyticsClick = () => {
+      router.push("/charts"); // Navigate to /charts page
+  };
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#FDECE6] via-[#FDECE6] to-[#F9D7C8] font-openSans text-center px-4">
       <div className="h-screen flex justify-center">
@@ -21,7 +28,9 @@ export default function Conversation() {
             <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]">
               Play
             </button>
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]">
+            <button 
+            className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]"
+            onClick={handleAnalyticsClick}>
               Analytics
             </button>
           </div>
