@@ -42,7 +42,6 @@ type ChartRefs = {
   [K in "race" | "sex" | "age" | "political" | "children" | "income" | "maritalStatus" | "religion" | "industry" | "propertyOwner"]: HTMLCanvasElement | null;
 };
 
-// Helper function to ensure numbers from data
 const ensureNumber = (value: unknown): number => {
   if (typeof value === 'number') return value;
   if (typeof value === 'string') return parseFloat(value);
@@ -102,6 +101,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         layout: { padding: { left: 20, right: 20 } },
         scales: { y: { beginAtZero: true, ticks: { padding: 10 } } },
         plugins: { legend: { display: false } },
@@ -122,6 +122,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         indexAxis: "y" as const,
         responsive: true,
+        maintainAspectRatio: true,
         layout: { padding: { left: 30, right: 30 } },
         scales: {
           x: {
@@ -163,6 +164,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         layout: { padding: { left: 20, right: 20 } },
         scales: { y: { beginAtZero: true, ticks: { padding: 10 } } },
       },
@@ -178,7 +180,20 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
           backgroundColor: colors,
         }],
       },
-      options: { responsive: true },
+      options: { 
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              boxWidth: 12,
+              padding: 15
+            }
+          }
+        }
+      },
     }, "politicalChart");
 
     // Children Chart
@@ -191,7 +206,20 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
           backgroundColor: colors.slice(0, 2),
         }],
       },
-      options: { responsive: true },
+      options: { 
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              boxWidth: 12,
+              padding: 15
+            }
+          }
+        }
+      },
     }, "childrenChart");
 
     // Income Chart
@@ -207,6 +235,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         layout: { padding: { left: 20, right: 20 } },
         scales: { y: { beginAtZero: true, ticks: { padding: 10 } } },
         plugins: { legend: { display: false } },
@@ -223,7 +252,20 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
           backgroundColor: colors.slice(0, 4),
         }],
       },
-      options: { responsive: true },
+      options: { 
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              boxWidth: 12,
+              padding: 15
+            }
+          }
+        }
+      },
     }, "maritalStatusChart");
 
     // Religion Chart
@@ -239,6 +281,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         layout: { padding: { left: 20, right: 20 } },
         scales: { y: { beginAtZero: true, ticks: { padding: 10 } } },
         plugins: { legend: { display: false } },
@@ -259,6 +302,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         indexAxis: "y" as const,
         responsive: true,
+        maintainAspectRatio: true,
         layout: { padding: { left: 30, right: 30 } },
         scales: {
           x: { beginAtZero: true },
@@ -282,6 +326,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         indexAxis: "y" as const,
         responsive: true,
+        maintainAspectRatio: true,
         layout: { padding: { left: 40, right: 40 } },
         scales: {
           x: {
