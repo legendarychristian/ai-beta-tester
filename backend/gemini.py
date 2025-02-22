@@ -7,6 +7,7 @@ from tqdm import tqdm
 import json
 import re
 import random
+import io
 
 load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_KEY"))
@@ -172,7 +173,20 @@ def evaluate_multiple_pitches(results):
     return eval_results
 
 
-def run_conversation_with_persona(product_text, persona):
+def run_conversation_with_persona(product_text, persona, product_image = None):
+    formatted_history = None
+    if product_image is not None:
+      formatted_history = [
+        types.Content(role="user", parts=[
+            types.Part.from_uri(
+                file_uri=product_image.uri,
+                mime_type=product_image.mime_type
+            ),
+            types.Part(text=f"Advertising image associated with the product.")
+        ]),
+      ]
+      
+    
     seller_config = types.GenerateContentConfig(
         system_instruction = """You are a salesman selling a product for your client. 
         You will be talking to a potential customer and will be trying to convince them to buy the product. 
@@ -192,6 +206,7 @@ def run_conversation_with_persona(product_text, persona):
         system_instruction = f"""You are a potential customer where a salesman will try to convince you to buy a product.
         This is your persona: {persona}.
         Generate responses as if you are this persona.
+        You should start with not being interested in the product, and the salesman will try to convince you to buy the product.
         Once you clearly state that you want to buy the product, or that you are not interested in the product, the conversation is finished.
         When the conversation is finished, output "finished" and do not generate any more responses.
         """,
@@ -200,11 +215,11 @@ def run_conversation_with_persona(product_text, persona):
         top_k=64,
         max_output_tokens=1000,
     )
-    seller_chat = client.chats.create(model='gemini-2.0-flash', config=seller_config)
-    buyer_chat = client.chats.create(model='gemini-2.0-flash', config=local_buyer_config)
+    seller_chat = client.chats.create(model='gemini-2.0-flash', config=seller_config, history = formatted_history)
+    buyer_chat = client.chats.create(model='gemini-2.0-flash', config=local_buyer_config, history = formatted_history)# history = formatted_history)
 
     response = seller_chat.send_message(
-        message=f"[INFORMATION]: Product to sell: {product_text}. Customer: {persona}."
+        message = f"[INFORMATION]: Product to sell: {product_text}. Customer: {persona}."
     )
     local_chat_history = [{"role": "user", "parts": [response.text]}]
 
@@ -235,17 +250,36 @@ def run_all_personas_in_parallel(personas, product_text, product_image = None):
     results = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_to_persona = {
-            executor.submit(run_conversation_with_persona, product_text, persona): persona for persona in personas
+            executor.submit(run_conversation_with_persona, product_text, persona, product_image): persona for persona in personas
         }
         for future in tqdm(concurrent.futures.as_completed(future_to_persona), total=len(personas)):
             results.append(future.result())
     return results
 
-def process_convo(product_info: str):
+async def process_convo(product_info: str, product_image = None):
     personas = []
-    
-    for _ in range(int(10)):
+    # print(product_image.file, product_image.content_type)
+
+    for _ in range(int(5)):
         persona = create_persona()
         personas.append(persona)
+
+    file = None
+
+    if product_image is not None:
+      content = await product_image.read()
+      file_bytes = io.BytesIO(content)
+      
+      # Determine MIME type from file extension
+      file_name = product_image.filename
+      
+      if file_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+          mime_type = 'image/jpeg' if file_name.lower().endswith(('.jpg', '.jpeg')) else 'image/png'
+      elif file_name.lower().endswith('.pdf'):
+          mime_type = 'application/pdf'
+      else:
+          mime_type = 'application/octet-stream'
+
+      file = client.files.upload(file = file_bytes, config={"mime_type": mime_type})
         
-    return run_all_personas_in_parallel(personas, product_info)
+    return run_all_personas_in_parallel(personas, product_info, file)
