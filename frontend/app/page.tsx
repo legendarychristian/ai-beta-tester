@@ -3,9 +3,32 @@ import { useState, ChangeEvent } from "react";
 
 export default function Home() {
   const [sentence, setSentence] = useState<string>("");
+  const [response, setResponse] = useState<string>("");
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSentence(event.target.value);
+  };
+
+  const handleSubmit = async () => {
+    if (!sentence) return;
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sentence }),
+      });
+
+      if (!res.ok) throw new Error("Failed to send sentence.");
+
+      const data = await res.json();
+      setResponse(data.message);
+    } catch (error) {
+      console.error("Error:", error);
+      setResponse("Error sending sentence.");
+    }
   };
 
   return (
@@ -16,12 +39,19 @@ export default function Home() {
         value={sentence}
         onChange={handleInputChange}
         placeholder="Type your sentence here..."
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded mb-2"
       />
-      {sentence && (
+      <button
+        onClick={handleSubmit}
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Submit
+      </button>
+
+      {response && (
         <div className="mt-4">
-          <p className="font-medium">You entered:</p>
-          <p className="text-lg">{sentence}</p>
+          <p className="font-medium">API Response:</p>
+          <p className="text-lg">{response}</p>
         </div>
       )}
     </div>
