@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { useDemographic } from "./DemographicContext";
+
 import {
   Chart,
   BarController,
@@ -15,7 +17,6 @@ import {
   PointElement,
   ChartConfiguration,
 } from "chart.js";
-import { demograph_data } from "./Hero"; // Import demograph_data
 
 Chart.register(
   BarController,
@@ -31,20 +32,12 @@ Chart.register(
   PointElement
 );
 
-interface AnalysisData {
-  race: { percentages: Record<string, number> };
-  sex: { percentages: Record<string, number>; raw_counts: Record<string, number> };
-  age: { percentages: Record<string, number> };
-  political_affiliation: { percentages: Record<string, number> };
-  children: { percentages: Record<string, number> };
-  income: { raw_counts: Record<string, number> };
-  marital_status: { percentages: Record<string, number> };
-  religion: { raw_counts: Record<string, number> };
-  industry: { raw_counts: Record<string, number> };
-  property_owner: { percentages: Record<string, number>; raw_counts: Record<string, number> };
+interface AnalysisChartsProps {
+  demographData: Record<string, any>;
 }
 
-export default function AnalysisCharts() {
+export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
+
   const refs = {
     race: useRef<HTMLCanvasElement | null>(null),
     sex: useRef<HTMLCanvasElement | null>(null),
@@ -76,7 +69,9 @@ export default function AnalysisCharts() {
   };
 
   useEffect(() => {
-    const data = demograph_data; // Use demograph_data directly
+    if (!demographData) return;
+
+    const data = demographData; // Use demograph_data directly
 
     const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40", "#C9CBCF"];
 
@@ -282,7 +277,7 @@ export default function AnalysisCharts() {
     return () => {
       Object.values(chartInstancesRef.current).forEach((chart) => chart.destroy());
     };
-  }, []);
+  }, [demographData]);
 
   return (
     <div className="flex flex-wrap justify-center gap-10 py-10">

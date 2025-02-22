@@ -1,14 +1,12 @@
 "use client";
 import AnalysisCharts from "../components/AnalysisCharts";
+import { useDemographic } from "../DemographicContext";
 export default function Charts() {
+  const { demographicData } = useDemographic();  // Access the global data
 
     return (
-        //   <div>
-        //     <h1>Chart Page</h1>
-        //     <pre>{JSON.stringify(data, null, 2)}</pre>
-        //   </div>
         <div className="min-h-screen flex flex-col items-center">
-            <AnalysisCharts />
+            <AnalysisCharts demographData={demographicData} />
         </div>
     );
 }
