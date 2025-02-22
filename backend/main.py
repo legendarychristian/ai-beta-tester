@@ -15,16 +15,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class ConversationStart(BaseModel):
-    product_info: str
-
-class Message(BaseModel):
-    role: str
-    message: str
-
-class ConversationHistory(BaseModel):
-    conversation_history: List[Message]
-
 # @app.post("/conversation/start")
 # async def start_conversation(data: ConversationStart):
 #     try:
