@@ -136,11 +136,6 @@ export default function Hero() {
                     <ArrowRight size={20} />
                 </button>
             </div>
-
-            {/* Render AnalysisCharts component if demographic data is available */}
-            {demographicAnalysis && (
-                <AnalysisCharts demographData={demographicAnalysis} />
-            )}
         </section>
     );
 }
