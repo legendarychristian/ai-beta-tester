@@ -29,9 +29,5 @@ def analyze_demographics_with_defaults():
             "raw_counts": {key: counts.get(key, 0) for key in possible_categories},
             "percentages": percentages
         }
-    return analysis_result
 
-# Save to file
-# output_file = "templates/demographic_analysis_complete.json"
-# with open(output_file, "w") as f:
-#     f.write(analyze_demographics_with_defaults())
+    return analysis_result
