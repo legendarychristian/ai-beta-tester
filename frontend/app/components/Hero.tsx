@@ -51,13 +51,21 @@ export default function Hero() {
     useEffect(() => {
         let interval: NodeJS.Timeout;
 
+        // Toggle body scroll based on isSubmitting
         if (isSubmitting) {
+            document.body.classList.add("no-scroll");
+
             interval = setInterval(() => {
                 setCurrentPhaseIndex((prevIndex) => (prevIndex + 1) % loadingPhases.length);
-            }, 2500); // Slightly longer duration for smoother transitions
+            }, 2500); // Loading phase update
+        } else {
+            document.body.classList.remove("no-scroll");
         }
 
-        return () => clearInterval(interval); // Cleanup when not submitting
+        return () => {
+            clearInterval(interval); // Cleanup interval
+            document.body.classList.remove("no-scroll"); // Ensure scroll is enabled on unmount
+        };
     }, [isSubmitting]);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
