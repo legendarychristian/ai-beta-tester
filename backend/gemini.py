@@ -110,7 +110,6 @@ demographic_parameters = {
       ]
     }
 
-NUM_TURNS_AGENTS = 1
 
 def create_persona():
     """Creates a persona for the user to use in the conversation"""
@@ -208,7 +207,7 @@ def run_conversation_with_persona(product_text, persona):
     )
     local_chat_history = [{"role": "user", "parts": [response.text]}]
 
-    for _ in range(NUM_TURNS_AGENTS):
+    for _ in range(10):
         response = buyer_chat.send_message(message=response.text)
         local_chat_history.append({"role": "model", "parts": [response.text]})
         if response.text.strip() == "finished":
@@ -244,7 +243,7 @@ def run_all_personas_in_parallel(personas, product_text, product_image = None):
 def process_convo(product_info: str):
     personas = []
     
-    for _ in range(int(NUM_TURNS_AGENTS)):
+    for _ in range(int(10)):
         persona = create_persona()
         personas.append(persona)
         
