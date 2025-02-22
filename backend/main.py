@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional, List, Dict
 
 app = FastAPI()
 
@@ -13,12 +14,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Data model for the request body
-class InputData(BaseModel):
-    sentence: str
+class ConversationStart(BaseModel):
+    product_info: str
 
-# text description of product
-# optional: multimedia content (image or video) - send url of the image
-@app.post("/submit")
-async def receive_sentence(data: InputData):
-    return {"message": f"Received: {data.sentence}"}
+class Message(BaseModel):
+    role: str
+    message: str
+
+class ConversationHistory(BaseModel):
+    conversation_history: List[Message]
+
+@app.post("/conversation/start")
+async def start_conversation(data: ConversationStart):
+    try:
+        conversation_history = process_convo(data.product_info)
+        
+        conversation_response = {
+            "status": "success",
+            "conversation_history": conversation_history,
+        }
+        
+        return conversation_response
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/conversation/analyze")
+async def analyze_conversation(conversation: ConversationHistory):
+    try:
+        analysis = analyze_convo(conversation.conversation_history)
+        return {
+            "status": "success",
+            "analysis": analysis
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
