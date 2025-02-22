@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 import boto3
 from pydub import AudioSegment
 import os
+import numpy as np
 
 app = FastAPI()
 
@@ -48,6 +49,11 @@ async def start_conversation(
         demographic_analysis = analyze_demographics_with_defaults(convo_results)
         scores = calculate_scores(eval_results)
         
+        best_result = convo_results[np.argmax(scores['sentiment_scores'])]
+                
+        # conversation audio
+        speed_switch, output_path, response = await text_to_speech(best_result)
+        
         if file:
             content = await file.read()
             # Optionally save or process the file here
@@ -65,20 +71,31 @@ async def start_conversation(
         raise HTTPException(status_code=500, detail=str(e))
     
 
-    
 @app.post("/conversation/convert")
-async def text_to_speech(conversation: dict):
+async def text_to_speech(conversation: Dict):
+    """
+    Converts conversation result (persona + history) to a single WAV file.
+    
+    Parameters:
+    - conversation (Dict)
+        e.g., {"persona": persona, "chat_history": local_chat_history}
+    
+    Returns:
+    - speech_switch
+    - output_path
+    - FileResponse
+    """
     try:
-        speech_switch = []
+        speech_switch = [0]
         combined_audio = AudioSegment.silent(duration=0)
-        buyer_gender = conversation['persona']['Gender']
+        buyer_gender = conversation['persona']['sex']
 
         for turn in conversation['chat_history']:
             role = turn['role']
             chat_text = turn['parts'][0]
             
             # Determine which Polly voice to use
-            if role == "seller":
+            if role == "user":
                 voice = "Matthew"
             else:
                 if buyer_gender == "Male":
@@ -95,6 +112,7 @@ async def text_to_speech(conversation: dict):
             )
 
             # Save the temporary MP3 file
+            os.makedirs("audio_files", exist_ok=True)
             with open("audio_files/audio.mp3", "wb") as file:
                 file.write(response['AudioStream'].read())
                 
@@ -107,16 +125,7 @@ async def text_to_speech(conversation: dict):
         output_path = "audio_files/final_audio.wav"
         combined_audio.export(output_path, format="wav")
 
-        # Clean up the temporary file
-        os.remove("audio_files/audio.mp3")
-
-        # Return the final WAV file as a response
-        # return FileResponse(output_path, media_type="audio/wav")
-        # return {
-        #     "audio": FileResponse(output_path, media_type="audio/wav"),
-        #     "speech_switch": speech_switch,
-        # }
-        return FileResponse(output_path, media_type="audio/wav", headers={"speech_switch": str(speech_switch)})
+        return speech_switch, output_path, FileResponse(output_path, media_type="audio/wav")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
