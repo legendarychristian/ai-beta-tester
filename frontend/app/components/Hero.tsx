@@ -30,16 +30,12 @@ export default function Hero() {
                 body: formData,
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
 
-            const data = await response.json();
-            console.log('Conversation started:', data);
+            console.log('Conversation started:', await response.json());
 
+            // Clear the pitch input but keep the image
             setPitch('');
-            setFile(null);
-            setImagePreview(null);
         } catch (error) {
             console.error('Error starting conversation:', error);
         } finally {
@@ -50,7 +46,7 @@ export default function Hero() {
     return (
         <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#E9E4F4] via-[#FDECE6] to-[#FDECE6] text-center px-4">
             {/* Header */}
-            <div className="flex flex-col items-center justify-center w-full h-1/3 pb-56">
+            <div className="flex flex-col items-center justify-center w-full h-1/3 pb-16">
                 <h1 className="text-8xl md:text-7xl font-openSans font-thin text-purple-800 mb-8">
                     Propel your pitch forward.
                 </h1>
@@ -76,7 +72,7 @@ export default function Hero() {
                     onChange={handleFileChange} 
                 />
 
-                {/* Image Preview aligned to the left */}
+                {/* Image Preview */}
                 {imagePreview && (
                     <div className="flex justify-start mb-4">
                         <div className="w-24 h-24 rounded-lg overflow-hidden">
