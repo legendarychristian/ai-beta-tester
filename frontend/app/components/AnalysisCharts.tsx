@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useDemographic } from "./DemographicContext";
+import { useDemographic } from "../context/DemographicContext";
 
 import {
   Chart,
@@ -15,6 +15,8 @@ import {
   LineController,
   LineElement,
   PointElement,
+  ChartType,
+  ChartData,
   ChartConfiguration,
 } from "chart.js";
 
@@ -33,55 +35,68 @@ Chart.register(
 );
 
 interface AnalysisChartsProps {
-  demographData: Record<string, any>;
+  demographData: Record<string, any> | null;
 }
 
-export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
+type ChartRefs = {
+  [K in "race" | "sex" | "age" | "political" | "children" | "income" | "maritalStatus" | "religion" | "industry" | "propertyOwner"]: HTMLCanvasElement | null;
+};
 
+// Helper function to ensure numbers from data
+const ensureNumber = (value: unknown): number => {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') return parseFloat(value);
+  return 0;
+};
+
+export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
   const refs = {
-    race: useRef<HTMLCanvasElement | null>(null),
-    sex: useRef<HTMLCanvasElement | null>(null),
-    age: useRef<HTMLCanvasElement | null>(null),
-    political: useRef<HTMLCanvasElement | null>(null),
-    children: useRef<HTMLCanvasElement | null>(null),
-    income: useRef<HTMLCanvasElement | null>(null),
-    maritalStatus: useRef<HTMLCanvasElement | null>(null),
-    religion: useRef<HTMLCanvasElement | null>(null),
-    industry: useRef<HTMLCanvasElement | null>(null),
-    propertyOwner: useRef<HTMLCanvasElement | null>(null),
+    race: useRef<HTMLCanvasElement>(null),
+    sex: useRef<HTMLCanvasElement>(null),
+    age: useRef<HTMLCanvasElement>(null),
+    political: useRef<HTMLCanvasElement>(null),
+    children: useRef<HTMLCanvasElement>(null),
+    income: useRef<HTMLCanvasElement>(null),
+    maritalStatus: useRef<HTMLCanvasElement>(null),
+    religion: useRef<HTMLCanvasElement>(null),
+    industry: useRef<HTMLCanvasElement>(null),
+    propertyOwner: useRef<HTMLCanvasElement>(null),
   };
 
   const chartInstancesRef = useRef<Record<string, Chart>>({});
 
-  const createChart = (ref: React.RefObject<HTMLCanvasElement>, config: ChartConfiguration, key: string) => {
+  const createChart = (
+    canvas: HTMLCanvasElement | null,
+    config: ChartConfiguration,
+    key: string
+  ) => {
+    if (!canvas) return;
+
     if (chartInstancesRef.current[key]) {
       chartInstancesRef.current[key].destroy();
     }
 
-    const canvas = ref.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        const newChart = new Chart(ctx, config);
-        chartInstancesRef.current[key] = newChart;
-      }
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      const newChart = new Chart(ctx, config);
+      chartInstancesRef.current[key] = newChart;
     }
   };
 
   useEffect(() => {
     if (!demographData) return;
 
-    const data = demographData; // Use demograph_data directly
-
+    const data = demographData;
     const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40", "#C9CBCF"];
 
-    createChart(refs.race, {
-      type: "bar",
+    // Race Chart
+    createChart(refs.race.current, {
+      type: "bar" as const,
       data: {
         labels: Object.keys(data.race.percentages),
         datasets: [{
           label: "Race Percentages",
-          data: Object.values(data.race.percentages),
+          data: Object.values(data.race.percentages).map(value => ensureNumber(value)),
           backgroundColor: colors,
         }],
       },
@@ -93,18 +108,19 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
     }, "raceChart");
 
-    createChart(refs.sex, {
-      type: "bar",
+    // Sex Chart
+    createChart(refs.sex.current, {
+      type: "bar" as const,
       data: {
         labels: ["Gender"],
         datasets: Object.entries(data.sex.percentages).map(([label, value], index) => ({
           label,
-          data: [value],
+          data: [ensureNumber(value)],
           backgroundColor: colors[index],
         })),
       },
       options: {
-        indexAxis: "y",
+        indexAxis: "y" as const,
         responsive: true,
         layout: { padding: { left: 30, right: 30 } },
         scales: {
@@ -123,19 +139,22 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
         plugins: {
           legend: { display: true, position: "right" },
           tooltip: {
-            callbacks: { label: (context) => `${context.dataset.label}: ${context.raw}%` },
+            callbacks: { 
+              label: (context) => `${context.dataset.label}: ${context.raw as number}%`
+            },
           },
         },
       },
     }, "sexChart");
 
-    createChart(refs.age, {
-      type: "line",
+    // Age Chart
+    createChart(refs.age.current, {
+      type: "line" as const,
       data: {
         labels: Object.keys(data.age.percentages),
         datasets: [{
           label: "Age Distribution",
-          data: Object.values(data.age.percentages),
+          data: Object.values(data.age.percentages).map(value => ensureNumber(value)),
           fill: true,
           backgroundColor: "rgba(75,192,192,0.2)",
           borderColor: "#4BC0C0",
@@ -149,37 +168,40 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
     }, "ageChart");
 
-    createChart(refs.political, {
-      type: "pie",
+    // Political Chart
+    createChart(refs.political.current, {
+      type: "pie" as const,
       data: {
         labels: Object.keys(data.political_affiliation.percentages),
         datasets: [{
-          data: Object.values(data.political_affiliation.percentages),
+          data: Object.values(data.political_affiliation.percentages).map(value => ensureNumber(value)),
           backgroundColor: colors,
         }],
       },
       options: { responsive: true },
     }, "politicalChart");
 
-    createChart(refs.children, {
-      type: "pie",
+    // Children Chart
+    createChart(refs.children.current, {
+      type: "pie" as const,
       data: {
         labels: Object.keys(data.children.percentages),
         datasets: [{
-          data: Object.values(data.children.percentages),
+          data: Object.values(data.children.percentages).map(value => ensureNumber(value)),
           backgroundColor: colors.slice(0, 2),
         }],
       },
       options: { responsive: true },
     }, "childrenChart");
 
-    createChart(refs.income, {
-      type: "bar",
+    // Income Chart
+    createChart(refs.income.current, {
+      type: "bar" as const,
       data: {
         labels: Object.keys(data.income.raw_counts),
         datasets: [{
           label: "Income Distribution",
-          data: Object.values(data.income.raw_counts),
+          data: Object.values(data.income.raw_counts).map(value => ensureNumber(value)),
           backgroundColor: colors,
         }],
       },
@@ -191,25 +213,27 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
     }, "incomeChart");
 
-    createChart(refs.maritalStatus, {
-      type: "pie",
+    // Marital Status Chart
+    createChart(refs.maritalStatus.current, {
+      type: "pie" as const,
       data: {
         labels: Object.keys(data.marital_status.percentages),
         datasets: [{
-          data: Object.values(data.marital_status.percentages),
+          data: Object.values(data.marital_status.percentages).map(value => ensureNumber(value)),
           backgroundColor: colors.slice(0, 4),
         }],
       },
       options: { responsive: true },
     }, "maritalStatusChart");
 
-    createChart(refs.religion, {
-      type: "bar",
+    // Religion Chart
+    createChart(refs.religion.current, {
+      type: "bar" as const,
       data: {
         labels: Object.keys(data.religion.raw_counts),
         datasets: [{
           label: "Religion Distribution",
-          data: Object.values(data.religion.raw_counts),
+          data: Object.values(data.religion.raw_counts).map(value => ensureNumber(value)),
           backgroundColor: colors,
         }],
       },
@@ -221,18 +245,19 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
     }, "religionChart");
 
-    createChart(refs.industry, {
-      type: "bar",
+    // Industry Chart
+    createChart(refs.industry.current, {
+      type: "bar" as const,
       data: {
         labels: Object.keys(data.industry.raw_counts),
         datasets: [{
           label: "Industry Distribution",
-          data: Object.values(data.industry.raw_counts),
+          data: Object.values(data.industry.raw_counts).map(value => ensureNumber(value)),
           backgroundColor: colors,
         }],
       },
       options: {
-        indexAxis: "y",
+        indexAxis: "y" as const,
         responsive: true,
         layout: { padding: { left: 30, right: 30 } },
         scales: {
@@ -243,18 +268,19 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
     }, "industryChart");
 
-    createChart(refs.propertyOwner, {
-      type: "bar",
+    // Property Owner Chart
+    createChart(refs.propertyOwner.current, {
+      type: "bar" as const,
       data: {
         labels: ["Property Ownership"],
         datasets: Object.entries(data.property_owner.percentages).map(([label, value], index) => ({
           label,
-          data: [value],
+          data: [ensureNumber(value)],
           backgroundColor: colors[index],
         })),
       },
       options: {
-        indexAxis: "y",
+        indexAxis: "y" as const,
         responsive: true,
         layout: { padding: { left: 40, right: 40 } },
         scales: {
@@ -269,7 +295,11 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
         },
         plugins: {
           legend: { display: true, position: "right" },
-          tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.raw}%` } },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.dataset.label}: ${context.raw as number}%`
+            },
+          },
         },
       },
     }, "propertyOwnerChart");
