@@ -3,7 +3,9 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List, Dict
 from analyze_demographics import analyze_demographics_with_defaults
+from buyer_seller_chats import process_convo
 from scores import calculate_scores
+
 app = FastAPI()
 
 # CORS setup to allow requests from your frontend
@@ -27,10 +29,6 @@ class Message(BaseModel):
 class ConversationHistory(BaseModel):
     conversation_history: List[Message]
 
-def process_convo(product_info: str) -> List[Message]:
-    return [
-        Message(role="system", message=f"Received product info: {product_info}")
-    ]
 
 @app.post("/conversation/start")
 async def start_conversation(
