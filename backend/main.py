@@ -69,15 +69,13 @@ async def start_conversation(
 @app.post("/conversation/convert")
 async def text_to_speech(conversation: dict):
     try:
+        speech_switch = []
         combined_audio = AudioSegment.silent(duration=0)
-        print("1")
         buyer_gender = conversation['persona']['Gender']
-        print("2")
+
         for turn in conversation['chat_history']:
             role = turn['role']
-            print("3")
             chat_text = turn['parts'][0]
-            print("4")
             
             # Determine which Polly voice to use
             if role == "seller":
@@ -103,6 +101,7 @@ async def text_to_speech(conversation: dict):
             # Load the MP3 and append it with a short pause
             clip = AudioSegment.from_mp3("audio_files/audio.mp3")
             combined_audio += clip + AudioSegment.silent(duration=200)
+            speech_switch.append(len(combined_audio))
 
         # Export the final WAV file
         output_path = "audio_files/final_audio.wav"
@@ -112,7 +111,12 @@ async def text_to_speech(conversation: dict):
         os.remove("audio_files/audio.mp3")
 
         # Return the final WAV file as a response
-        return FileResponse(output_path, media_type="audio/wav")
+        # return FileResponse(output_path, media_type="audio/wav")
+        # return {
+        #     "audio": FileResponse(output_path, media_type="audio/wav"),
+        #     "speech_switch": speech_switch,
+        # }
+        return FileResponse(output_path, media_type="audio/wav", headers={"speech_switch": str(speech_switch)})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
