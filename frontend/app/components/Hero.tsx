@@ -5,14 +5,19 @@ import { useState } from 'react';
 export default function Hero() {
     const [pitch, setPitch] = useState('');
     const [file, setFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+        const selectedFile = event.target.files[0];
+        if (selectedFile && selectedFile.type.startsWith('image/')) {
+            setFile(selectedFile);
+            setImagePreview(URL.createObjectURL(selectedFile));
+        }
     };
 
     const handleSubmit = async () => {
-        if (!pitch.trim()) return;
+        if (!pitch.trim() && !file) return;
 
         setIsSubmitting(true);
         try {
@@ -22,7 +27,7 @@ export default function Hero() {
 
             const response = await fetch('http://localhost:8000/conversation/start', {
                 method: 'POST',
-                body: formData, // FormData includes both text and file data
+                body: formData,
             });
 
             if (!response.ok) {
@@ -32,9 +37,9 @@ export default function Hero() {
             const data = await response.json();
             console.log('Conversation started:', data);
 
-            // Clear input and file after submission
             setPitch('');
             setFile(null);
+            setImagePreview(null);
         } catch (error) {
             console.error('Error starting conversation:', error);
         } finally {
@@ -54,7 +59,7 @@ export default function Hero() {
                 </h1>
             </div>
 
-            {/* Input Box with Buttons */}
+            {/* Input Box */}
             <div className="relative w-1/2 bg-white rounded-2xl px-6 py-4 shadow-lg">
                 {/* File Upload Button */}
                 <label 
@@ -67,8 +72,22 @@ export default function Hero() {
                     id="file-upload" 
                     type="file" 
                     className="hidden" 
+                    accept="image/*"
                     onChange={handleFileChange} 
                 />
+
+                {/* Image Preview aligned to the left */}
+                {imagePreview && (
+                    <div className="flex justify-start mb-4">
+                        <div className="w-24 h-24 rounded-lg overflow-hidden">
+                            <img 
+                                src={imagePreview} 
+                                alt="Uploaded Preview" 
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {/* Text Area */}
                 <textarea
@@ -87,13 +106,6 @@ export default function Hero() {
                     <ArrowRight size={20} />
                 </button>
             </div>
-
-            {/* Display selected file */}
-            {file && (
-                <p className="mt-4 text-purple-800">
-                    Selected file: {file.name}
-                </p>
-            )}
         </section>
     );
 }
