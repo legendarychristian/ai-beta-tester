@@ -3,6 +3,29 @@ import { useEffect, useState } from "react";
 import { createAvatarFromConfig, avatarConfigs } from './avatarConfig';
 
 export default function Conversation() {
+
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+  const handlePlayAudio = async () => {
+    try {
+
+      const playResponse = await fetch("http://localhost:8000/conversation/play");
+
+      if (!playResponse.ok) {
+        throw new Error("Failed to fetch audio");
+      }
+
+      const blob = await playResponse.blob();
+      const url = URL.createObjectURL(blob);
+      setAudioUrl(url);
+
+      const audio = new Audio(url);
+      audio.play();
+    } catch (error) {
+      console.error("Error playing audio:", error);
+    }
+  };
+
   const router = useRouter();
   const [demographicData, setDemographicData] = useState(null);
 
@@ -53,7 +76,9 @@ export default function Conversation() {
             <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]">
               Download
             </button>
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]">
+            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]"
+            onClick={handlePlayAudio}
+            >
               Play
             </button>
             <button 
