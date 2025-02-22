@@ -17,6 +17,8 @@ app.add_middleware(
 class InputData(BaseModel):
     sentence: str
 
+# text description of product
+# optional: multimedia content (image or video) - send url of the image
 @app.post("/submit")
 async def receive_sentence(data: InputData):
     return {"message": f"Received: {data.sentence}"}
