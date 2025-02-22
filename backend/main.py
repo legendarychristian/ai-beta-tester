@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List, Dict
@@ -33,17 +33,23 @@ def process_convo(product_info: str) -> List[Message]:
     ]
 
 @app.post("/conversation/start")
-async def start_conversation(data: ConversationStart):
+async def start_conversation(
+    product_info: str = Form(...),
+    file: Optional[UploadFile] = File(None)
+):
     try:
-        conversation_history = process_convo(data.product_info)
-        
-        conversation_response = {
+        conversation_history = process_convo(product_info)
+
+        if file:
+            content = await file.read()
+            # Optionally save or process the file here
+            print(f"Received file: {file.filename}, size: {len(content)} bytes")
+
+        return {
             "status": "success",
             "conversation_history": conversation_history,
+            "file_received": file.filename if file else None
         }
-        
-        return conversation_response
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
