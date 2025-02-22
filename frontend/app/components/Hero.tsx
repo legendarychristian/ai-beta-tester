@@ -21,7 +21,7 @@ export default function Hero() {
                 </button>
 
                 <textarea
-                    placeholder="Enter pitch..."
+                    placeholder="Tell us your pitch..."
                     className="w-full h-24 pt-2 text-left align-top bg-transparent font-openSans font-thin text-purple-800 placeholder-purple-800 focus:outline-none resize-none"
                 /> 
 
