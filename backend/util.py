@@ -10,14 +10,6 @@ def analyze_demographics_with_defaults(convo_results):
         demographics.append(item['persona'])
         
     df = pd.DataFrame(demographics)
-    
-    # # Load the demographic sample data
-    # sample_file_path = "templates/random_demographics.json"
-    # with open(sample_file_path, 'r') as f:
-    #     sample_data = json.load(f)
-
-    # # Convert to DataFrame
-    # df = pd.DataFrame(sample_data)
 
     # Load the possible values JSON
     possible_values_file_path = "templates/demographics.json"
