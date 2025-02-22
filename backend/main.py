@@ -2,9 +2,8 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List, Dict
-from analyze_demographics import analyze_demographics_with_defaults
-from buyer_seller_chats import process_convo
-from scores import calculate_scores
+from gemini import evaluate_multiple_pitches, process_convo
+from util import calculate_scores, analyze_demographics_with_defaults
 
 app = FastAPI()
 
@@ -36,8 +35,11 @@ async def start_conversation(
     file: Optional[UploadFile] = File(None)
 ):
     try:
-        conversation_history = process_convo(product_info)
-
+        convo_results = process_convo(product_info) 
+        eval_results = evaluate_multiple_pitches(convo_results)
+        demographic_analysis = analyze_demographics_with_defaults(convo_results)
+        scores = calculate_scores(eval_results)
+        
         if file:
             content = await file.read()
             # Optionally save or process the file here
@@ -45,32 +47,15 @@ async def start_conversation(
 
         return {
             "status": "success",
-            "conversation_history": conversation_history,
+            "convo_results": convo_results,
+            "eval_results": eval_results,
+            "demographic_analysis": demographic_analysis,
+            "scores": scores,
             "file_received": file.filename if file else None
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# total demographic analysis
-@app.get("/conversation/analyze")
-async def analyze_conversation():
-    try:
-        analysis = analyze_demographics_with_defaults()
-        return {
-            "status": "success",
-            "analysis": analysis
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# metrics for all buyers
-@app.get("/conversation/metrics")
-async def get_metrics():
-    try:
-        ratings = calculate_scores()
-        return ratings
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
