@@ -1,22 +1,64 @@
 "use client";
 import { ArrowRight, X } from "lucide-react";
-import { useState, ChangeEvent } from "react";
-import AnalysisCharts from "./AnalysisCharts";
-import { useDemographic } from "../DemographicContext";  // Import the custom hook
+import { useState, ChangeEvent, useEffect } from "react";
+import { useDemographic } from "../DemographicContext";
 import { useRouter } from "next/navigation";
-
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Hero() {
-    const { setDemographicData } = useDemographic();  // Access the setter
+    const { setDemographicData } = useDemographic();
     const router = useRouter();
     const [pitch, setPitch] = useState("");
     const [files, setFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
 
-    // 🔑 New states to store API data
-    const [scores, setScores] = useState<null | Record<string, any>>(null);
-    const [demographicAnalysis, setDemographicAnalysis] = useState<null | Record<string, any>>(null);
+    const loadingPhases = [
+        "Brewing the perfect pitch...",
+        "Polishing your elevator speech...",
+        "Crunching numbers and wowing investors...",
+        "Almost there... adding a touch of brilliance...",
+        "Turning ideas into pitch-perfect words...",
+        "Sharpening your story to a fine point...",
+        "Turning coffee into compelling pitches...",
+        "Assembling buzzwords that actually make sense...",
+        "Spicing things up with some wow-factor...",
+        "Channeling startup energy...",
+        "Aligning synergies and leveraging paradigms...",
+        "Refining your pitch... because first impressions matter...",
+        "Optimizing for maximum head nods in the room...",
+        "Sprinkling in a dash of confidence...",
+        "Prepping jaw-dropping insights...",
+        "Making your pitch investor-friendly (and wallet-ready)...",
+        "Synthesizing brilliance with a touch of magic...",
+        "Distilling your vision into pure gold...",
+        "Ensuring your pitch is smoother than your coffee...",
+        "Brainstorm clouds clearing... sunshine incoming...",
+        "Finalizing the secret sauce recipe...",
+        "Hunting for those 'aha!' moments...",
+        "Recalibrating brilliance sensors...",
+        "Generating applause-worthy content...",
+        "Adding extra sparkle for dramatic effect...",
+        "Running a quick charisma check...",
+        "Cueing up the mic drop moment...",
+        "Formatting for maximum investor attention...",
+        "Dusting off jargon (and keeping it human)...",
+        "Wrapping it up with a bow and a smile...",
+    ];
+
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        if (isSubmitting) {
+            interval = setInterval(() => {
+                setCurrentPhaseIndex((prevIndex) => (prevIndex + 1) % loadingPhases.length);
+            }, 2500); // Slightly longer duration for smoother transitions
+        }
+
+        return () => clearInterval(interval); // Cleanup when not submitting
+    }, [isSubmitting]);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = event.target.files;
@@ -41,6 +83,9 @@ export default function Hero() {
     };
 
     const handleSubmit = async () => {
+        setIsSubmitting(true);
+        setCurrentPhaseIndex(0);
+
         try {
             const formData = new FormData();
             formData.append("product_info", pitch);
@@ -57,13 +102,15 @@ export default function Hero() {
             console.log("✅ Full API response:", responseData);
 
             if (responseData.demographic_analysis) {
-                setDemographicData(responseData.demographic_analysis);  // ✅ Set data in context
+                setDemographicData(responseData.demographic_analysis);
             } else {
                 console.warn("⚠️ demographic_analysis not found in response");
             }
 
         } catch (error) {
             console.error("❌ Error starting conversation:", error);
+        } finally {
+            setTimeout(() => setIsSubmitting(false), 500); // Brief delay for smoother end
         }
     };
 
@@ -74,13 +121,13 @@ export default function Hero() {
                 <h1 className="text-8xl md:text-7xl font-openSans font-thin text-purple-800 mb-8">
                     Propel your pitch forward.
                 </h1>
-                <h1 className="text-8xl md:text-2xl font-openSans font-thin text-purple-800 mb-8">
+                <h1 className="text-2xl font-openSans font-thin text-purple-800 mb-8">
                     There are no shortcuts to a good product pitch. But we can help you get there.
                 </h1>
             </div>
 
             {/* Input Box */}
-            <div className="relative w-full md:w-1/2 bg-white rounded-2xl px-6 py-4 shadow-lg">
+            <div className="relative w-full md:w-1/2 bg-white rounded-2xl px-6 py-6 shadow-lg">
                 {/* File Upload Button */}
                 <label
                     htmlFor="file-upload"
@@ -129,12 +176,32 @@ export default function Hero() {
 
                 {/* Submit Button */}
                 <button
-                    className="absolute bottom-2 right-4 w-11 h-11 flex justify-center items-center rounded-full bg-[#CDBFEA] text-white hover:bg-[#9277CC] transition duration-300"
+                    className={`absolute bottom-2 right-4 w-11 h-11 flex justify-center items-center rounded-full ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#CDBFEA] hover:bg-[#9277CC]"
+                        } text-white transition duration-300`}
                     onClick={handleSubmit}
                     disabled={isSubmitting}
                 >
                     <ArrowRight size={20} />
                 </button>
+            </div>
+            <div className="min-h-[40px] flex justify-center items-center mt-24">
+                <AnimatePresence mode="wait">
+                    {isSubmitting && (
+                        <motion.div
+                            key={loadingPhases[currentPhaseIndex]}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                                duration: 0.8,
+                                ease: "easeInOut",
+                            }}
+                            className="text-purple-800 font-light font-openSans text-2xl"
+                        >
+                            {loadingPhases[currentPhaseIndex]}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </section>
     );

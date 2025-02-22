@@ -355,8 +355,8 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
   }, [demographData]);
 
   return (
-    <div className="flex flex-wrap justify-center gap-10 py-10">
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
+    <div className="flex flex-wrap justify-center gap-10 py-10 bg-[#ECFCF8]">
+      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4 px-4">
         <h2 className="text-xl font-bold">Race - Bar Chart</h2>
         <canvas ref={refs.race}></canvas>
       </div>
@@ -402,7 +402,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       </div>
 
       <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Property Ownership - Stacked Ratio</h2>
+        <h2 className="text-xl font-bold">Ownership - Stacked Ratio</h2>
         <canvas ref={refs.propertyOwner}></canvas>
       </div>
     </div>
