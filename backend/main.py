@@ -4,6 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List, Dict
 from gemini import evaluate_multiple_pitches, process_convo
 from util import calculate_scores, analyze_demographics_with_defaults
+from fastapi.responses import FileResponse
+import boto3
+from pydub import AudioSegment
+import os
+import numpy as np
 
 app = FastAPI()
 
@@ -16,6 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+polly_client = boto3.Session(
+                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],                 
+    aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+    region_name='us-east-1').client('polly')
 
 class ConversationStart(BaseModel):
     product_info: str
@@ -40,6 +49,11 @@ async def start_conversation(
         demographic_analysis = analyze_demographics_with_defaults(convo_results)
         scores = calculate_scores(eval_results)
         
+        best_result = convo_results[np.argmax(scores['sentiment_scores'])]
+                
+        # conversation audio
+        speed_switch, output_path, response = await text_to_speech(best_result)
+        
         if file:
             content = await file.read()
             # Optionally save or process the file here
@@ -53,6 +67,66 @@ async def start_conversation(
             "scores": scores,
             "file_received": file.filename if file else None
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.post("/conversation/convert")
+async def text_to_speech(conversation: Dict):
+    """
+    Converts conversation result (persona + history) to a single WAV file.
+    
+    Parameters:
+    - conversation (Dict)
+        e.g., {"persona": persona, "chat_history": local_chat_history}
+    
+    Returns:
+    - speech_switch
+    - output_path
+    - FileResponse
+    """
+    try:
+        speech_switch = [0]
+        combined_audio = AudioSegment.silent(duration=0)
+        buyer_gender = conversation['persona']['sex']
+
+        for turn in conversation['chat_history']:
+            role = turn['role']
+            chat_text = turn['parts'][0]
+            
+            # Determine which Polly voice to use
+            if role == "user":
+                voice = "Matthew"
+            else:
+                if buyer_gender == "Male":
+                    voice = "Stephen"
+                else:
+                    voice = "Ruth"
+
+            # Call Polly to synthesize speech
+            response = polly_client.synthesize_speech(
+                VoiceId=voice,
+                OutputFormat='mp3', 
+                Text=chat_text,
+                Engine='generative'
+            )
+
+            # Save the temporary MP3 file
+            os.makedirs("audio_files", exist_ok=True)
+            with open("audio_files/audio.mp3", "wb") as file:
+                file.write(response['AudioStream'].read())
+                
+            # Load the MP3 and append it with a short pause
+            clip = AudioSegment.from_mp3("audio_files/audio.mp3")
+            combined_audio += clip + AudioSegment.silent(duration=200)
+            speech_switch.append(len(combined_audio))
+
+        # Export the final WAV file
+        output_path = "audio_files/final_audio.wav"
+        combined_audio.export(output_path, format="wav")
+
+        return speech_switch, output_path, FileResponse(output_path, media_type="audio/wav")
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
