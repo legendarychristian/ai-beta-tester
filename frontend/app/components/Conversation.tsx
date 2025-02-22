@@ -43,21 +43,3 @@ export default function Conversation() {
   );
 }
 
-// import { useDemographic } from "./DemographicContext";
-// import AnalysisCharts from "./AnalysisCharts";
-
-// export default function Conversation() {
-//   const { demographicData } = useDemographic();  // Access the global data
-
-//   return (
-//     <section className="min-h-screen">
-//       <h1 className="text-4xl font-bold mb-6">Conversation Page</h1>
-//       {demographicData ? (
-//         <AnalysisCharts demographData={demographicData} />
-//       ) : (
-//         <p>No demographic data found. Please submit a pitch first.</p>
-//       )}
-//     </section>
-//   );
-// }
-
