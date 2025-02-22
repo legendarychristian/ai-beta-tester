@@ -1,0 +1,82 @@
+[
+    {
+    "decision": "Pass",
+    "sentiment_analysis": -2,
+    "reasoning": {
+      "market_size_and_growth": "While the market is large, the growth rate is standard. Competition is fierce, and capturing significant market share will be challenging.",
+      "problem_validation": "The problem exists, but the proposed solution might be too technologically ambitious. Regulatory hurdles and potential government interference pose significant risks.",
+      "solution_differentiation": "The technological differentiation is promising, but the long-term sustainability of the competitive advantage is questionable. Larger players could easily replicate the technology.",
+      "business_model_viability": "The subscription model is standard, but customer acquisition costs could be high. Achieving profitability will require significant upfront investment and sustained growth.",
+      "technological_feasibility": "While advancements are being made, the technological execution of deploying a network of AI-powered microsatellites is complex and carries high technical risk. The cost claims need extreme validation.",
+      "timing_and_market_conditions": "Geopolitical instability creates demand, but also increases risk. The market is volatile and susceptible to external factors.",
+      "team_and_partnerships": "The team's experience in satellite technology and AI needs extensive verification. Partnerships need to be rock solid to mitigate risks.",
+      "cost_efficiency": "The cost efficiency claims are very aggressive, and require extreme due diligence. Space based infrastructure is notoriously expensive.",
+      "real_time_data": "Real time data is valuable, but the infrastructure to ensure constant uptime and data integrity is extremely complex.",
+      "AI_driven_analytics": "AI analytics is a buzzword, and the real value needs to be proven. The AI needs to be extremely accurate to be useful."
+    }
+}, 
+{
+    "decision": "Fund",
+    "sentiment_analysis": 5,
+    "reasoning": {
+      "market_size_and_growth": "Disruptive technology in a massive market is a recipe for explosive growth. The potential for first-mover advantage is huge.",
+      "problem_validation": "The data bottleneck is a major pain point, and the solution offers a transformative approach. This is exactly the kind of innovation the market needs.",
+      "solution_differentiation": "The AI-powered microsatellite network is a game-changer. The technology has the potential to redefine the entire geospatial intelligence industry.",
+      "business_model_viability": "The subscription model is scalable and generates recurring revenue. The potential for high margins and rapid growth is significant.",
+      "technological_feasibility": "The advancements in small-sat technology and AI make this feasible. The potential for technological breakthroughs is exciting.",
+      "timing_and_market_conditions": "The timing is perfect. The increasing demand for real-time intelligence creates a massive opportunity.",
+      "team_and_partnerships": "A strong technical team with expertise in space technology and AI is essential. Strategic partnerships with key players will accelerate growth.",
+      "cost_efficiency": "The cost efficiency is a major advantage. If true, it allows for faster deployment and higher profitability.",
+      "real_time_data": "Real time data is the key to unlocking immense value. The speed and accuracy of the data will be a major competitive advantage.",
+      "AI_driven_analytics": "AI analytics is the future of geospatial intelligence. The potential for automated insights and predictive capabilities is limitless."
+    }
+},
+{
+    "decision": "Fund (Conditional)",
+    "sentiment_analysis": 3,
+    "reasoning": {
+      "market_size_and_growth": "The market is attractive, but the company needs to demonstrate a clear path to capturing market share. Focus on specific verticals and establish strong customer relationships.",
+      "problem_validation": "The problem is well-defined, but the solution needs to be validated with early adopters. Pilot programs and customer feedback are crucial.",
+      "solution_differentiation": "The technological differentiation is promising, but the company needs to focus on delivering tangible value to customers. Emphasize the practical applications of the technology.",
+      "business_model_viability": "The subscription model is viable, but the company needs to demonstrate a clear understanding of customer acquisition costs and lifetime value. Focus on building a sustainable business model.",
+      "technological_feasibility": "The technology is promising, but the company needs to demonstrate a clear roadmap for development and deployment. Focus on achieving key milestones and demonstrating technical progress.",
+      "timing_and_market_conditions": "The market conditions are favorable, but the company needs to adapt to changing market dynamics. Flexibility and agility are essential.",
+      "team_and_partnerships": "The team's experience and expertise are crucial. Focus on building a strong team and establishing strategic partnerships with key players.",
+      "cost_efficiency": "Cost efficiency is important, but the company needs to focus on delivering value to customers. Focus on building a sustainable and profitable business.",
+      "real_time_data": "Real time data is valuable, but the company needs to ensure data accuracy and reliability. Focus on building a robust data infrastructure.",
+      "AI_driven_analytics": "AI analytics is promising, but the company needs to demonstrate the practical applications of the technology. Focus on delivering actionable insights to customers."
+    }
+},
+{
+    "decision": "Fund (with specific technical milestones)",
+    "sentiment_analysis": 4,
+    "reasoning": {
+      "market_size_and_growth": "Market size is relevant, but the core focus is on the technological innovation and scientific advancement.",
+      "problem_validation": "Problem validation is secondary to proof of concept. The scientific rigor of the solution is paramount.",
+      "solution_differentiation": "Technological innovation and scientific advancement are the primary differentiators. Focus on breakthroughs and intellectual property.",
+      "business_model_viability": "Business model is secondary to technological feasibility. Focus on achieving scientific milestones and demonstrating technical progress.",
+      "technological_feasibility": "Deep tech requires rigorous scientific validation. Focus on demonstrating the feasibility and scalability of the core technology.",
+      "timing_and_market_conditions": "Timing is less critical than technological readiness. Focus on achieving scientific breakthroughs and demonstrating technical progress.",
+      "team_and_partnerships": "Scientific expertise and technical talent are essential. Focus on building a team of world-class scientists and engineers.",
+      "cost_efficiency": "Cost efficiency is secondary to technological innovation. Focus on achieving scientific breakthroughs and demonstrating technical progress.",
+      "real_time_data": "Data accuracy and reliability are paramount. Focus on building a robust data infrastructure and demonstrating scientific rigor.",
+      "AI_driven_analytics": "AI algorithms need to be scientifically validated. Focus on demonstrating the accuracy and reliability of the AI models."
+    }
+},
+{
+    "decision": "Pass",
+    "sentiment_analysis": -3,
+    "reasoning": {
+      "market_size_and_growth": "The market is competitive, and the company needs to demonstrate a clear competitive advantage. Past failures in the space are noteworthy.",
+      "problem_validation": "The problem is well-known, but the solution needs to be significantly better than existing solutions. Incremental improvements are not enough.",
+      "solution_differentiation": "The technological differentiation needs to be truly disruptive. Claims are often overstated. Show me the hard data.",
+      "business_model_viability": "The business model needs to be rigorously tested. Customer acquisition costs are often underestimated. Show me the unit economics.",
+      "technological_feasibility": "Space is hard. Show me the proof of concept. Claims of cost-effective satellite deployment are often unrealistic.",
+      "timing_and_market_conditions": "Market conditions are volatile. The company needs to demonstrate resilience and adaptability.",
+      "team_and_partnerships": "The team's experience and expertise are crucial. Past failures are red flags. Show me the track record.",
+      "cost_efficiency": "Cost efficiency is essential, but claims need to be validated. Space projects have a history of cost overruns.",
+      "real_time_data": "Real-time data is valuable, but data integrity and security are paramount. Show me the security protocols.",
+      "AI_driven_analytics": "AI analytics needs to be rigorously tested and validated. Show me the accuracy and reliability of the algorithms."
+    }
+}
+]
