@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-
+import os
 
 def analyze_demographics_with_defaults(convo_results):
     
@@ -12,7 +12,8 @@ def analyze_demographics_with_defaults(convo_results):
     df = pd.DataFrame(demographics)
 
     # Load the possible values JSON
-    possible_values_file_path = "templates/demographics.json"
+    possible_values_file_path = os.path.abspath("backend/templates/demographics.json")
+    print(f'Possible values file path: {possible_values_file_path}')
     with open(possible_values_file_path, 'r') as f:
         possible_values = json.load(f)["demographics"]
     
