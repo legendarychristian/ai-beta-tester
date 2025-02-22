@@ -1,10 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 
 export default function Home() {
-  const [sentence, setSentence] = useState("");
+  const [sentence, setSentence] = useState<string>("");
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSentence(event.target.value);
   };
 
