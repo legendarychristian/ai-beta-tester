@@ -49,3 +49,11 @@ async def analyze_conversation(conversation: ConversationHistory):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/conversation/metrics")
+async def get_metrics():
+    try:
+        ratings = metrics_calculation()
+        return ratings
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
