@@ -54,7 +54,7 @@ async def start_conversation(
         raise HTTPException(status_code=500, detail=str(e))
 
 # total demographic analysis
-@app.post("/conversation/analyze")
+@app.get("/conversation/analyze")
 async def analyze_conversation():
     try:
         analysis = analyze_demographics_with_defaults()
