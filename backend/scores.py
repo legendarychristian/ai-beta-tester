@@ -2,7 +2,7 @@
 import json
 
 # %%
-def calculate_scores(filepath):
+def calculate_scores():
     """
     Counts accept/fail decisions and keeps track of sentiment scores from a JSON file.
     
@@ -34,6 +34,5 @@ def calculate_scores(filepath):
     return scores
 
 # %%
-print(calculate_scores('templates/sample_responses.json'))
 
 # %%
