@@ -1,0 +1,100 @@
+{
+    "demographics": {
+      "religion": [
+        "Christianity",
+        "Islam",
+        "Judaism",
+        "Hinduism",
+        "Buddhism",
+        "Atheism/Agnosticism/Non-religious",
+        "Sikhism",
+        "Other"
+      ],
+      "race": [
+        "White",
+        "Black or African American",
+        "Asian",
+        "American Indian or Alaska Native",
+        "Native Hawaiian or Pacific Islander",
+        "Multiracial",
+        "Other"
+      ],
+      "sex": [
+        "Male",
+        "Female"
+      ],
+      "age": [
+        "18-24",
+        "25-34",
+        "35-44",
+        "45-54",
+        "55-64",
+        "65+"
+      ],
+      "political_affiliation": [
+        "Democrat",
+        "Republican",
+        "Independent",
+        "Libertarian",
+        "Green Party",
+        "Other",
+        "Unaffiliated"
+      ],
+      "location": [
+        "New York City",
+        "Los Angeles",
+        "Chicago",
+        "Houston",
+        "Dallas",
+        "Washington, D.C.",
+        "San Francisco",
+        "Philadelphia",
+        "Atlanta",
+        "Boston"
+      ],
+      "income": [
+        "<$25,000",
+        "$25,000-$50,000",
+        "$50,000-$75,000",
+        "$75,000-$100,000",
+        "$100,000-$1M",
+        "$1M-$10M",
+        "$10M-$100M"
+      ],
+      "sexual_orientation": [
+        "Heterosexual",
+        "Homosexual",
+        "Bisexual",
+        "Asexual",
+        "Pansexual",
+        "Queer",
+        "Other"
+      ],
+      "marital_status": [
+        "Married",
+        "Single",
+        "Divorced",
+        "Widowed"
+      ],
+      "children": [
+        "Yes",
+        "No"
+      ],
+      "property_owner": [
+        "Yes",
+        "No"
+      ],
+      "industry": [
+        "Technology",
+        "Healthcare",
+        "Finance",
+        "Education",
+        "Manufacturing",
+        "Retail",
+        "Construction",
+        "Agriculture",
+        "Service Industry",
+        "Other"
+      ]
+    }
+  }
