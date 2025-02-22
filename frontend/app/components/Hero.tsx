@@ -1,15 +1,15 @@
 "use client";
 import { ArrowRight } from "lucide-react";
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 
 export default function Hero() {
     const [pitch, setPitch] = useState('');
-    const [file, setFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
+    const [file, setFile] = useState<File | null>(null); // Add File typing
+    const [imagePreview, setImagePreview] = useState<string | null>(null); // Add string typing for preview
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target.files?.[0]; // Optional chaining for safety
         if (selectedFile && selectedFile.type.startsWith('image/')) {
             setFile(selectedFile);
             setImagePreview(URL.createObjectURL(selectedFile));
@@ -44,7 +44,7 @@ export default function Hero() {
     };
 
     return (
-        <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#E9E4F4] via-[#FDECE6] to-[#FDECE6] text-center px-4">
+        <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#E9E4F4] to-[#FDECE6] text-center px-4">
             {/* Header */}
             <div className="flex flex-col items-center justify-center w-full h-1/3 pb-16">
                 <h1 className="text-8xl md:text-7xl font-openSans font-thin text-purple-800 mb-8">
