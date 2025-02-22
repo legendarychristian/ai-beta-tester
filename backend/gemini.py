@@ -150,7 +150,6 @@ def evaluate_pitch(chat_history):
         message="Begin evaluation",
     )
 
-    print(f"Evaluator: {response.text}")
     return response
 
 
