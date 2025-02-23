@@ -61,7 +61,13 @@ async def start_conversation(
     file: Optional[UploadFile] = File(None)
 ):
     try:
-        convo_results = process_convo(product_info) 
+        if file:
+            # content = await file.read()
+            # Optionally save or process the file here
+            print(f"Received file: {file.filename}")
+            # print(content)
+            
+        convo_results = await process_convo(product_info, file)
         eval_results = evaluate_multiple_pitches(convo_results)
         print(f'Convo results: {convo_results}')
         print(f'Eval results: {eval_results}')

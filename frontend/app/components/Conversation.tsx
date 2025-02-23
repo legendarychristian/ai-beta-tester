@@ -79,6 +79,10 @@ export default function Conversation() {
     return config.includes('Female') ? 'Saleswoman' : 'Salesman';
   };
 
+  useEffect(() => {
+    router.prefetch('/charts'); // Prefetch "About" page
+  }, [router]);
+
   const handleAnalyticsClick = () => {
     router.push("/charts");
   };
