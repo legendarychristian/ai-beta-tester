@@ -193,9 +193,11 @@ def run_conversation_with_persona(product_text, persona, product_image = None):
         You will generate a response that is persuasive and convincing, and that will make the customer want to buy the product.
         The conversation is finished once the customer asks to purchase the product or states that they are not interested in the product.
         Do not hallucinate or make up information about the product, only use the information that is given to you.
+        Do not mention the demographics of the customer in any of your responses. 
+        Keep your responses short and concise, 1 or 2 sentences at most.
         If the buyer says "finished", output "finished" and do not generate any more responses. 
         .""",
-        max_output_tokens = 256,
+        max_output_tokens = 128,
         temperature = 0.1,
         top_p = 0.5,
         top_k = 64,
@@ -212,7 +214,7 @@ def run_conversation_with_persona(product_text, persona, product_image = None):
         temperature=0.1,
         top_p=0.5,
         top_k=64,
-        max_output_tokens=256,
+        max_output_tokens=128,
     )
     seller_chat = client.chats.create(model='gemini-2.0-flash', config=seller_config, history = formatted_history)
     buyer_chat = client.chats.create(model='gemini-2.0-flash', config=local_buyer_config, history = formatted_history)# history = formatted_history)
