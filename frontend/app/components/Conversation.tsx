@@ -122,22 +122,22 @@ export default function Conversation() {
               </div>
             </div>
           </div>
-          <div className="flex flex-row items-center justify-center w-full h-1/4 gap-12">
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]">
+          <div className="flex flex-row items-center justify-center w-full h-1/4 gap-12 text-black">
+            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black">
               Download
             </button>
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]"
+            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
             onClick={handlePlayAudio}
             >
               Play
             </button>
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]"
+            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
             onClick={handlePauseAudio}
             >
               Pause
             </button>
             <button 
-              className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9]"
+              className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
               onClick={handleAnalyticsClick}>
               Analytics
             </button>

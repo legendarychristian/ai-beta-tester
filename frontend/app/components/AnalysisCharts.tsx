@@ -355,7 +355,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
   }, [demographData]);
 
   return (
-    <div className="flex flex-wrap justify-center gap-48 bg-[#ECFCF8]">
+    <div className="flex flex-wrap justify-center gap-48 bg-[#ECFCF8] text-black">
       <div className="w-full flex justify-center items-center">
         <h1 className="text-6xl font-thin font-openSans text-center pt-12">Demographic Analysis</h1>
       </div>
