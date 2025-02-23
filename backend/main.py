@@ -148,7 +148,7 @@ async def text_to_speech(data: ConversationRequest):
     """
     try:
         conversation = data.conversation  # Extract conversation object
-        speech_switch = [0]
+        speech_switch = [1]
         combined_audio = AudioSegment.silent(duration=0)
 
         if "chat_history" not in conversation or not isinstance(conversation["chat_history"], list):
@@ -159,7 +159,10 @@ async def text_to_speech(data: ConversationRequest):
         for index, turn in enumerate(conversation["chat_history"]):
             role = turn.get("role", "")
             parts = turn.get("parts", [])
-
+            
+            print(f'type of parts: {type(parts)}')
+            if 'finished' in parts:
+                continue
             if not parts:
                 continue  # Skip empty messages
 
@@ -186,6 +189,7 @@ async def text_to_speech(data: ConversationRequest):
             combined_audio += clip + AudioSegment.silent(duration=200)
             speech_switch.append(len(combined_audio))  # Store speech timing
 
+        print(f'speed switch: {speech_switch}')
         # Export the final WAV file
         output_path = os.path.join(AUDIO_DIR, "final_conversation.wav")
         combined_audio.export(output_path, format="wav")
