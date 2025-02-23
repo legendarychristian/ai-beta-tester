@@ -196,14 +196,14 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       },
     }, "politicalChart");
 
-    // Children Chart
+    // Marital Status Chart
     createChart(refs.children.current, {
       type: "pie" as const,
       data: {
         labels: Object.keys(data.children.percentages),
         datasets: [{
           data: Object.values(data.children.percentages).map(value => ensureNumber(value)),
-          backgroundColor: colors.slice(0, 2),
+          backgroundColor: colors.slice(0, 4),
         }],
       },
       options: {
@@ -355,58 +355,99 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
   }, [demographData]);
 
   return (
-    <div className="flex flex-wrap justify-center gap-48 bg-[#ECFCF8]">
-      <div className="w-full flex justify-center items-center">
-        <h1 className="text-6xl font-thin font-openSans text-center pt-12">Demographic Analysis</h1>
-      </div>
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4 px-4">
-        <h2 className="text-xl font-bold">Race - Bar Chart</h2>
-        <canvas ref={refs.race}></canvas>
-      </div>
+    <div className="w-full p-8 bg-transparent">
+      <h1 className="text-4xl font-openSans font-thin text-center mb-12">Demographic Analysis</h1>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Sex - Stacked Ratio</h2>
-        <canvas ref={refs.sex}></canvas>
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Race */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Race</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.race} />
+            </div>
+          </div>
+        </div>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Age - Bell Curve (Line Chart)</h2>
-        <canvas ref={refs.age}></canvas>
-      </div>
+        {/* Sex */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Sex</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.sex} />
+            </div>
+          </div>
+        </div>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Political Affiliation - Pie Chart</h2>
-        <canvas ref={refs.political}></canvas>
-      </div>
+        {/* Age */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Age</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.age} />
+            </div>
+          </div>
+        </div>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Children - Pie Chart</h2>
-        <canvas ref={refs.children}></canvas>
-      </div>
+        {/* Political */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Political Affiliation</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.political} />
+            </div>
+          </div>
+        </div>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Income - Bar Chart</h2>
-        <canvas ref={refs.income}></canvas>
-      </div>
+        {/* Income */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Income</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.income} />
+            </div>
+          </div>
+        </div>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Marital Status - Pie Chart</h2>
-        <canvas ref={refs.maritalStatus}></canvas>
-      </div>
+        {/* Marital Status */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Marital Status</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.maritalStatus} />
+            </div>
+          </div>
+        </div>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Religion - Bar Chart</h2>
-        <canvas ref={refs.religion}></canvas>
-      </div>
+        {/* Religion */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Religion</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.religion} />
+            </div>
+          </div>
+        </div>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Industry - Horizontal Bar Chart</h2>
-        <canvas ref={refs.industry}></canvas>
-      </div>
+        {/* Industry */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Industry</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.industry} />
+            </div>
+          </div>
+        </div>
 
-      <div className="w-full md:w-1/3 flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-bold">Ownership - Stacked Ratio</h2>
-        <canvas ref={refs.propertyOwner}></canvas>
+        {/* Property Owner */}
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Property Ownership</h2>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full">
+              <canvas ref={refs.propertyOwner} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
