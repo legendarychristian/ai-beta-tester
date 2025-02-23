@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { useConversation } from "../context/ConversationContext";
 import { createAvatarFromConfig, avatarConfigs } from "./avatarConfig";
+import AnalysisCharts from "./AnalysisCharts";
+import { useDemographic } from "../DemographicContext";
 
 export default function Conversation() {
   const router = useRouter();
@@ -160,23 +162,23 @@ export default function Conversation() {
                 />
                 <p className="text-lg font-semibold text-purple-800">{getSalesPersonLabel(supportAgentConfig)}</p>
               </div>
-            </div>
 
-            {/* Customer Box */}
-            <div
-              className={`flex flex-col w-1/2 h-full rounded-lg transition border-4 ${
-                activeSpeaker === "customer" ? "border-green-500" : "border-transparent"
-              }`}
-            >
-              <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
-                <img 
-                  src={customerAvatar.toDataUri()}
-                  alt="Customer Avatar"
-                  className="w-48 h-48 mb-4"
-                />
-                <p className="text-lg font-semibold text-purple-800">Customer</p>
+              {/* Customer Box */}
+              <div
+                className={`flex flex-col w-1/2 h-full rounded-lg transition border-4 ${activeSpeaker === "customer" ? "border-green-500" : "border-transparent"
+                  }`}
+              >
+                <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
+                  <img
+                    src={customerAvatar.toDataUri()}
+                    alt="Customer Avatar"
+                    className="w-48 h-48 mb-4"
+                  />
+                  <p className="text-lg font-semibold text-purple-800">Customer</p>
+                </div>
               </div>
             </div>
+
           </div>
 
           <div className="flex flex-row items-center justify-center w-full h-1/4 gap-12 text-black">
@@ -203,7 +205,12 @@ export default function Conversation() {
             </button>
           </div>
         </div>
+
+      <div className=" bg-gradient-to-b from-[#F9D7C8] via-[#C8E9F1] to-[#E8F8FF]">
+        <section className="min-h-screen font-openSans text-center px-4">
+          <AnalysisCharts demographData={demographicData} />
+        </section>
       </div>
-    </section>
+    </div>
   );
 }
