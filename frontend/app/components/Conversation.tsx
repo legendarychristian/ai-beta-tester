@@ -3,10 +3,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { useConversation } from "../context/ConversationContext";
 import { createAvatarFromConfig, avatarConfigs } from "./avatarConfig";
+import AnalysisCharts from "./AnalysisCharts";
+import { useDemographic } from "../DemographicContext";
 
 export default function Conversation() {
   const router = useRouter();
-  const [demographicData, setDemographicData] = useState<any>(null);
+  const { demographicData } = useDemographic();  // Access the global data
   const { speechSwitch } = useConversation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -88,62 +90,69 @@ export default function Conversation() {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-b from-[#FDECE6] via-[#FDECE6] to-[#F9D7C8] font-openSans text-center px-4">
-      <div className="h-screen flex justify-center">
-        <div className="flex flex-col w-full h-full">
-          <h1 className="text-8xl md:text-4xl font-openSans font-thin text-purple-800 mb-8 py-16">
-            Chatting with your <span className="font-semibold">customers</span>, made delightful.
-          </h1>
-          <div className="flex flex-row w-full h-3/4 gap-48 px-24">
-            <div className="flex flex-col w-1/2 h-full rounded-lg">
-              <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
-                <img 
-                  src={supportAgentAvatar.toDataUri()}
-                  alt="Sales Agent Avatar"
-                  className="w-48 h-48 mb-4"
-                />
-                <p className="text-lg font-semibold text-purple-800">{getSalesPersonLabel(supportAgentConfig)}</p>
+    <div>
+      <section className="min-h-screen bg-gradient-to-b from-[#FDECE6] via-[#FDECE6] to-[#F9D7C8] font-openSans text-center px-4">
+        <div className="h-screen flex justify-center">
+          <div className="flex flex-col w-full h-full">
+            <h1 className="text-8xl md:text-4xl font-openSans font-thin text-purple-800 mb-8 py-16">
+              Chatting with your <span className="font-semibold">customers</span>, made delightful.
+            </h1>
+            <div className="flex flex-row w-full h-3/4 gap-48 px-24">
+              <div className="flex flex-col w-1/2 h-full rounded-lg">
+                <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
+                  <img
+                    src={supportAgentAvatar.toDataUri()}
+                    alt="Sales Agent Avatar"
+                    className="w-48 h-48 mb-4"
+                  />
+                  <p className="text-lg font-semibold text-purple-800">{getSalesPersonLabel(supportAgentConfig)}</p>
+                </div>
               </div>
-            </div>
 
-            {/* Customer Box */}
-            <div
-              className={`flex flex-col w-1/2 h-full rounded-lg transition border-4 ${
-                activeSpeaker === "customer" ? "border-green-500" : "border-transparent"
-              }`}
-            >
-              <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
-                <img 
-                  src={customerAvatar.toDataUri()}
-                  alt="Customer Avatar"
-                  className="w-48 h-48 mb-4"
-                />
-                <p className="text-lg font-semibold text-purple-800">Customer</p>
+              {/* Customer Box */}
+              <div
+                className={`flex flex-col w-1/2 h-full rounded-lg transition border-4 ${activeSpeaker === "customer" ? "border-green-500" : "border-transparent"
+                  }`}
+              >
+                <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
+                  <img
+                    src={customerAvatar.toDataUri()}
+                    alt="Customer Avatar"
+                    className="w-48 h-48 mb-4"
+                  />
+                  <p className="text-lg font-semibold text-purple-800">Customer</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex flex-row items-center justify-center w-full h-1/4 gap-12 text-black">
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black">
-              Download
-            </button>
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
-            onClick={handlePlayAudio}
-            >
-              Play
-            </button>
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
-            onClick={handlePauseAudio}
-            >
-              Pause
-            </button>
-            <button 
-              className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
-              onClick={handleAnalyticsClick}>
-              Analytics
-            </button>
+            <div className="flex flex-row items-center justify-center w-full h-1/4 gap-12 text-black">
+              <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black">
+                Download
+              </button>
+              <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
+                onClick={handlePlayAudio}
+              >
+                Play
+              </button>
+              <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
+                onClick={handlePauseAudio}
+              >
+                Pause
+              </button>
+              <button
+                className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
+                onClick={handleAnalyticsClick}>
+                Analytics
+              </button>
+            </div>
           </div>
         </div>
+      </section>
+
+      <div className=" bg-gradient-to-b from-[#F9D7C8] via-[#C8E9F1] to-[#E8F8FF]">
+        <section className="min-h-screen font-openSans text-center px-4">
+          <AnalysisCharts demographData={demographicData} />
+        </section>
       </div>
-    </section>
+    </div>
   );
 }
