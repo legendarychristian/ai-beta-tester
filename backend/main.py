@@ -76,9 +76,9 @@ async def start_conversation(
                 
         print(f'Best result: {best_result}')
         # conversation audio
-        speed_switch, output_path, response = await text_to_speech(best_result)
+        # speech_switch, output_path, response = await text_to_speech(best_result)
         
-        print(f'Output path: {output_path}')
+        # print(f'Output path: {output_path}')
         
         if file:
             content = await file.read()
@@ -95,69 +95,106 @@ async def start_conversation(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
 
-@app.post("/conversation/convert")
-async def text_to_speech(conversation: Dict):
+class ConversationData(BaseModel):
+    convo_history: list
+    scores: dict
+
+@app.post("/conversation/get_best_conversation")
+async def get_best_conversation(data: ConversationData):
     """
-    Converts conversation result (persona + history) to a single WAV file.
-    
-    Parameters:
-    - conversation (Dict)
-        e.g., {"persona": persona, "chat_history": local_chat_history}
-    
-    Returns:
-    - speech_switch
-    - output_path
-    - FileResponse
+    Returns the best conversation based on the highest sentiment score.
+
+    Request Body:
+    - convo_history (list): A list of conversation results.
+    - scores (dict): Dictionary containing "sentiment_scores" (list of numerical scores).
+
+    Response:
+    - result (dict): The conversation entry with the highest sentiment score.
     """
     try:
-        speech_switch = [0]
-        combined_audio = AudioSegment.silent(duration=0)
-        buyer_gender = conversation['persona']['sex']
+        if not data.convo_history or not data.scores.get("sentiment_scores"):
+            raise HTTPException(status_code=400, detail="Invalid input: Missing conversation history or scores")
 
-        for turn in conversation['chat_history']:
-            role = turn['role']
-            chat_text = turn['parts'][0]
-            
-            # Determine which Polly voice to use
-            if role == "user":
-                voice = "Matthew"
-            else:
-                if buyer_gender == "Male":
-                    voice = "Stephen"
-                else:
-                    voice = "Ruth"
+        sentiment_scores = np.array(data.scores["sentiment_scores"])
 
-            # Call Polly to synthesize speech
-            response = polly_client.synthesize_speech(
-                VoiceId=voice,
-                OutputFormat='mp3', 
-                Text=chat_text,
-                Engine='generative'
-            )
+        if sentiment_scores.size == 0:
+            raise HTTPException(status_code=400, detail="Invalid input: Sentiment scores list is empty")
 
-            # Save the temporary MP3 file
-            os.makedirs(AUDIO_DIR, exist_ok=True)
-            
-            temp_audio_path = os.path.join(AUDIO_DIR, "audio.mp3")
-            
-            with open(temp_audio_path, "wb") as file:
-                file.write(response['AudioStream'].read())
-                
-            # Load the MP3 and append it with a short pause
-            clip = AudioSegment.from_mp3(temp_audio_path)
-            combined_audio += clip + AudioSegment.silent(duration=200)
-            speech_switch.append(len(combined_audio))
+        best_index = np.argmax(sentiment_scores)  # Get index of highest sentiment score
+        best_result = data.convo_history[best_index]
 
-        output_path = os.path.join(AUDIO_DIR, "final_conversation.wav")
-        combined_audio.export(output_path, format="wav")
-
-        return speech_switch, output_path, FileResponse(output_path, media_type="audio/wav")
+        return {"result": best_result}
+    
+    except IndexError:
+        raise HTTPException(status_code=500, detail="Error: Mismatch between scores and conversation history length")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class ConversationRequest(BaseModel):
+    conversation: Dict
+
+@app.post("/conversation/convert")
+async def text_to_speech(data: ConversationRequest):
+    """
+    Converts conversation history into a single WAV file.
+    """
+    try:
+        conversation = data.conversation  # Extract conversation object
+        speech_switch = [0]
+        combined_audio = AudioSegment.silent(duration=0)
+
+        if "chat_history" not in conversation or not isinstance(conversation["chat_history"], list):
+            raise HTTPException(status_code=400, detail="Invalid chat_history format")
+
+        buyer_gender = conversation.get("persona", {}).get("sex", "Male")  # Default to Male
+
+        for index, turn in enumerate(conversation["chat_history"]):
+            role = turn.get("role", "")
+            parts = turn.get("parts", [])
+
+            if not parts:
+                continue  # Skip empty messages
+
+            chat_text = parts[0]  # Assume each message has one text part
+
+            # Determine Polly voice
+            voice = "Matthew" if role == "user" else ("Stephen" if buyer_gender == "Male" else "Ruth")
+
+            # Call AWS Polly to synthesize speech
+            response = polly_client.synthesize_speech(
+                VoiceId=voice,
+                OutputFormat="mp3",
+                Text=chat_text,
+                Engine="generative"
+            )
+
+            # Save MP3 file temporarily
+            temp_audio_path = os.path.join(AUDIO_DIR, f"audio_{index}.mp3")
+            with open(temp_audio_path, "wb") as file:
+                file.write(response["AudioStream"].read())
+
+            # Append to the combined audio file
+            clip = AudioSegment.from_mp3(temp_audio_path)
+            combined_audio += clip + AudioSegment.silent(duration=200)
+            speech_switch.append(len(combined_audio))  # Store speech timing
+
+        # Export the final WAV file
+        output_path = os.path.join(AUDIO_DIR, "final_conversation.wav")
+        combined_audio.export(output_path, format="wav")
+
+        return {
+            "speech_switch": speech_switch,
+            "file_url": "/conversation/play"
+        }
+
+    except KeyError as e:
+        raise HTTPException(status_code=400, detail=f"Missing field: {str(e)}")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,12 +1,23 @@
 "use client";
-import { ArrowRight, X } from "lucide-react";
 import { useState, ChangeEvent, useEffect } from "react";
 import { useDemographic } from "../DemographicContext";
+import { useConversation } from "../context/ConversationContext";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, X } from "lucide-react";
 
 export default function Hero() {
+
+
+    
     const { setDemographicData } = useDemographic();
+    const {
+        setConversationHistory,
+        setEvaluationResults,
+        setScores,
+        setSpeechSwitch,
+    } = useConversation();
+    
     const router = useRouter();
     const [pitch, setPitch] = useState("");
     const [files, setFiles] = useState<File[]>([]);
@@ -45,7 +56,7 @@ export default function Hero() {
         "Formatting for maximum investor attention...",
         "Dusting off jargon (and keeping it human)...",
         "Wrapping it up with a bow and a smile...",
-    ];
+      ];
 
 
     useEffect(() => {
@@ -99,6 +110,7 @@ export default function Hero() {
             formData.append("product_info", pitch);
             files.forEach((file, index) => formData.append(`file_${index}`, file));
 
+            // Step 1: Get Conversation Results
             const response = await fetch("http://localhost:8000/conversation/start", {
                 method: "POST",
                 body: formData,
@@ -109,10 +121,48 @@ export default function Hero() {
             const responseData = await response.json();
             console.log("✅ Full API response:", responseData);
 
+            // Store response data in context
+            if (responseData.convo_results) {
+                setConversationHistory(responseData.convo_results);
+            }
+            if (responseData.eval_results) {
+                setEvaluationResults(responseData.eval_results);
+            }
+            if (responseData.scores) {
+                setScores(responseData.scores);
+            }
             if (responseData.demographic_analysis) {
                 setDemographicData(responseData.demographic_analysis);
             } else {
-                console.warn("⚠️ demographic_analysis not found in response");
+                console.warn("No demographic analysis found in response data.");
+            }
+
+            // Step 2: Fetch Best Conversation
+            const bestResponse = await fetch("http://localhost:8000/conversation/get_best_conversation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    convo_history: responseData.convo_results,
+                    scores: responseData.scores,
+                }),
+            });
+
+            if (!bestResponse.ok) throw new Error(`Network error: ${bestResponse.status}`);
+
+            const bestData = await bestResponse.json();
+            const bestResult = bestData.result;
+            console.log("🔥 Best Conversation:", bestResult);
+
+            // Step 3: Convert Best Conversation to Speech
+            const speechResponse = await fetch("http://localhost:8000/conversation/convert", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ conversation: bestResult }),
+            });
+
+            const speechData = await speechResponse.json();
+            if (speechData.speech_switch) {
+                setSpeechSwitch(speechData.speech_switch);
             }
 
         } catch (error) {
@@ -173,7 +223,7 @@ export default function Hero() {
                         ))}
                     </div>
                 )}
-
+                
                 {/* Text Area */}
                 <textarea
                     value={pitch}
@@ -182,16 +232,16 @@ export default function Hero() {
                     className="w-full h-24 pt-2 text-left bg-transparent font-openSans font-thin text-purple-800 placeholder-purple-800 focus:outline-none resize-none"
                 />
 
-                {/* Submit Button */}
+            {/* Submit Button */}
                 <button
                     className={`absolute bottom-2 right-4 w-11 h-11 flex justify-center items-center rounded-full ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#CDBFEA] hover:bg-[#9277CC]"
-                        } text-white transition duration-300`}
+                    } text-white transition duration-300`}
                     onClick={handleSubmit}
                     disabled={isSubmitting}
                 >
                     <ArrowRight size={20} />
                 </button>
-            </div>
+                </div>
             <div className="min-h-[40px] flex justify-center items-center mt-24">
                 <AnimatePresence mode="wait">
                     {isSubmitting && (
