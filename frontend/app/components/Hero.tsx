@@ -12,7 +12,7 @@ interface HeroProps {
 
 export default function Hero({ onLoadingComplete }: HeroProps) {
     const { setDemographicData } = useDemographic();
-    const { setConversationHistory, setEvaluationResults, setScores, setSpeechSwitch } = useConversation();
+    const { setConversationHistory, setEvaluationResults, setScores, setSpeechSwitch, setBestResult } = useConversation();
 
     const router = useRouter();
     const [pitch, setPitch] = useState("");
@@ -144,6 +144,8 @@ export default function Hero({ onLoadingComplete }: HeroProps) {
             const bestData = await bestResponse.json();
             const bestResult = bestData.result;
             console.log("🔥 Best Conversation:", bestResult);
+
+            setBestResult(bestResult);
 
             // Step 3: Convert Best Conversation to Speech
             const speechResponse = await fetch("http://localhost:8000/conversation/convert", {

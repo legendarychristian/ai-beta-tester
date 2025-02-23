@@ -7,10 +7,11 @@ import { createAvatarFromConfig, avatarConfigs } from "./avatarConfig";
 export default function Conversation() {
   const router = useRouter();
   const [demographicData, setDemographicData] = useState<any>(null);
-  const { speechSwitch } = useConversation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [activeSpeaker, setActiveSpeaker] = useState<"salesman" | "customer" | null>(null);
+  const { speechSwitch, bestResult } = useConversation();
+
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
@@ -78,12 +79,55 @@ export default function Conversation() {
     });
   };
 
-  // Rest of the component remains the same...
-  const supportAgentConfig = "whiteMale" as keyof typeof avatarConfigs;
-  const customerConfig = "whiteFemale" as keyof typeof avatarConfigs;
+  const raceGenderMapping: Record<string, Record<string, keyof typeof avatarConfigs>> = {
+    "White": {
+      "Male": "whiteMale",
+      "Female": "whiteFemale"
+    },
+    "Black or African American": {
+      "Male": "blackMale",
+      "Female": "blackFemale"
+    },
+    "Asian": {
+      "Male": "asianMale",
+      "Female": "asianFemale"
+    },
+    "American Indian or Alaska Native": {
+      "Male": "alaskanNativeMale",
+      "Female": "alaskanNativeFemale"
+    },
+    "Native Hawaiian or Pacific Islander": {
+      "Male": "pacificIslanderMale",
+      "Female": "pacificIslanderFemale"
+    },
+    "Multiracial": {
+      "Male": "multiracialMale",
+      "Female": "multiracialFemale"
+    },
+    "Other": {
+      "Male": "multiracialMale", // Default to multiracial if unspecified
+      "Female": "multiracialFemale"
+    }
+  };
+  
+  // Function to get avatar config from persona
+  const getAvatarConfig = (race: string, sex: string): keyof typeof avatarConfigs => {
+    return raceGenderMapping[race]?.[sex] || "whiteMale"; // Default to "whiteMale" if undefined
+  };
 
-  const supportAgentAvatar = createAvatarFromConfig(supportAgentConfig);
+  const buyerRace = bestResult?.persona?.race || "White"; // Default to "White" if race is missing
+  const buyerSex = bestResult?.persona?.sex || "Male"; // Default to "Male" if sex is missing
+  const buyerAvatarConfig = getAvatarConfig(buyerRace, buyerSex);
+
+  const supportAgentRace = buyerRace === "White" ? "Black or African American" : "White"; // Alternate race
+  const supportAgentAvatarConfig = getAvatarConfig(supportAgentRace, "Male"); // Always male
+  
+  const customerConfig = buyerAvatarConfig as keyof typeof avatarConfigs;
   const customerAvatar = createAvatarFromConfig(customerConfig);
+
+  const supportAgentConfig = supportAgentAvatarConfig as keyof typeof avatarConfigs;
+  const supportAgentAvatar = createAvatarFromConfig(supportAgentConfig);
+  
 
   const getSalesPersonLabel = (config: keyof typeof avatarConfigs): string => {
     return config.includes('Female') ? 'Saleswoman' : 'Salesman';
