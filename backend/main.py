@@ -21,10 +21,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Moves up one level
+AUDIO_DIR = os.path.join(BASE_DIR, "audio_files")
+
 polly_client = boto3.Session(
                 aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],                 
     aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
     region_name='us-east-1').client('polly')
+
+AUDIO_FILE_PATH = os.path.join(AUDIO_DIR, "final_conversation.wav")
+
+@app.get("/conversation/play")
+async def play_conversation():
+    """
+    API to serve the final conversation audio file.
+    Returns the WAV file as a response if it exists.
+    """
+    if not os.path.exists(AUDIO_FILE_PATH):
+        raise HTTPException(status_code=404, detail="Audio file not found")
+
+    return FileResponse(AUDIO_FILE_PATH, media_type="audio/wav", filename="final_conversation.wav")
+
 
 class ConversationStart(BaseModel):
     product_info: str
@@ -52,13 +69,22 @@ async def start_conversation(
             
         convo_results = await process_convo(product_info, file)
         eval_results = evaluate_multiple_pitches(convo_results)
+        print(f'Convo results: {convo_results}')
+        print(f'Eval results: {eval_results}')
         demographic_analysis = analyze_demographics_with_defaults(convo_results)
         scores = calculate_scores(eval_results)
         
+
+        print(f'Demographic analysis: {demographic_analysis}')
+        print(f'Scores: {scores}')
+        
         best_result = convo_results[np.argmax(scores['sentiment_scores'])]
                 
+        print(f'Best result: {best_result}')
         # conversation audio
         speed_switch, output_path, response = await text_to_speech(best_result)
+        
+        print(f'Output path: {output_path}')
         
         if file:
             content = await file.read()
@@ -118,17 +144,19 @@ async def text_to_speech(conversation: Dict):
             )
 
             # Save the temporary MP3 file
-            os.makedirs("audio_files", exist_ok=True)
-            with open("audio_files/audio.mp3", "wb") as file:
+            os.makedirs(AUDIO_DIR, exist_ok=True)
+            
+            temp_audio_path = os.path.join(AUDIO_DIR, "audio.mp3")
+            
+            with open(temp_audio_path, "wb") as file:
                 file.write(response['AudioStream'].read())
                 
             # Load the MP3 and append it with a short pause
-            clip = AudioSegment.from_mp3("audio_files/audio.mp3")
+            clip = AudioSegment.from_mp3(temp_audio_path)
             combined_audio += clip + AudioSegment.silent(duration=200)
             speech_switch.append(len(combined_audio))
 
-        # Export the final WAV file
-        output_path = "audio_files/final_audio.wav"
+        output_path = os.path.join(AUDIO_DIR, "final_conversation.wav")
         combined_audio.export(output_path, format="wav")
 
         return speech_switch, output_path, FileResponse(output_path, media_type="audio/wav")

@@ -195,7 +195,7 @@ def run_conversation_with_persona(product_text, persona, product_image = None):
         Do not hallucinate or make up information about the product, only use the information that is given to you.
         If the buyer says "finished", output "finished" and do not generate any more responses. 
         .""",
-        max_output_tokens = 1000,
+        max_output_tokens = 256,
         temperature = 0.1,
         top_p = 0.5,
         top_k = 64,
@@ -212,7 +212,7 @@ def run_conversation_with_persona(product_text, persona, product_image = None):
         temperature=0.1,
         top_p=0.5,
         top_k=64,
-        max_output_tokens=1000,
+        max_output_tokens=256,
     )
     seller_chat = client.chats.create(model='gemini-2.0-flash', config=seller_config, history = formatted_history)
     buyer_chat = client.chats.create(model='gemini-2.0-flash', config=local_buyer_config, history = formatted_history)# history = formatted_history)
@@ -222,7 +222,7 @@ def run_conversation_with_persona(product_text, persona, product_image = None):
     )
     local_chat_history = [{"role": "user", "parts": [response.text]}]
 
-    for _ in range(10):
+    for _ in range(5):
         response = buyer_chat.send_message(message=response.text)
         local_chat_history.append({"role": "model", "parts": [response.text]})
         if response.text.strip() == "finished":
