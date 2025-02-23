@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createAvatarFromConfig, avatarConfigs } from './avatarConfig';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Conversation() {
 
@@ -38,6 +39,10 @@ export default function Conversation() {
   const getSalesPersonLabel = (config: keyof typeof avatarConfigs): string => {
     return config.includes('Female') ? 'Saleswoman' : 'Salesman';
   };
+
+  useEffect(() => {
+    router.prefetch('/charts'); // Prefetch "About" page
+  }, [router]);
 
   const handleAnalyticsClick = () => {
     router.push("/charts");
