@@ -18,7 +18,7 @@ export default function Conversation() {
   useEffect(() => {
     router.prefetch('/charts');
   }, [router]);
-
+  
   const handlePlayAudio = async () => {
     try {
       if (!audioUrl) {
@@ -31,10 +31,12 @@ export default function Conversation() {
         setAudioUrl(url);
         audioRef.current = new Audio(url);
       }
-
+  
       if (audioRef.current) {
         audioRef.current.play();
         setIsPlaying(true);
+        // Set initial speaker immediately
+        setActiveSpeaker("salesman");
         syncHighlights();
       }
     } catch (error) {
@@ -53,22 +55,30 @@ export default function Conversation() {
     setActiveSpeaker(null);
   };
 
-  // Synchronize highlights with speechSwitch
   const syncHighlights = () => {
-    if (!speechSwitch.length) return;
-
-    speechSwitch.forEach((time, index) => {
+    if (!audioRef.current || !speechSwitch || speechSwitch.length === 0) return;
+  
+    timeoutRefs.current.forEach(clearTimeout);
+    timeoutRefs.current = [];
+  
+    speechSwitch.forEach((timestamp, index) => {
+      const nextTimestamp = speechSwitch[index + 1] || audioRef.current!.duration * 1000;
+      
       const timeout = setTimeout(() => {
         setActiveSpeaker(index % 2 === 0 ? "salesman" : "customer");
-      }, time);
+      }, timestamp);
+      
       timeoutRefs.current.push(timeout);
+  
+      const clearTimeoutRef = setTimeout(() => {
+        setActiveSpeaker(null);
+      }, nextTimestamp);
+  
+      timeoutRefs.current.push(clearTimeoutRef);
     });
-
-    // Clear highlight at the end of the conversation
-    const finalTimeout = setTimeout(() => setActiveSpeaker(null), speechSwitch[speechSwitch.length - 1]);
-    timeoutRefs.current.push(finalTimeout);
   };
 
+  // Rest of the component remains the same...
   const supportAgentConfig = "whiteMale" as keyof typeof avatarConfigs;
   const customerConfig = "whiteFemale" as keyof typeof avatarConfigs;
 
@@ -78,10 +88,6 @@ export default function Conversation() {
   const getSalesPersonLabel = (config: keyof typeof avatarConfigs): string => {
     return config.includes('Female') ? 'Saleswoman' : 'Salesman';
   };
-
-  useEffect(() => {
-    router.prefetch('/charts'); // Prefetch "About" page
-  }, [router]);
 
   const handleAnalyticsClick = () => {
     router.push("/charts");
@@ -94,8 +100,14 @@ export default function Conversation() {
           <h1 className="text-8xl md:text-4xl font-openSans font-thin text-purple-800 mb-8 py-16">
             Chatting with your <span className="font-semibold">customers</span>, made delightful.
           </h1>
+
           <div className="flex flex-row w-full h-3/4 gap-48 px-24">
-            <div className="flex flex-col w-1/2 h-full rounded-lg">
+            {/* Salesperson Box */}
+            <div
+              className={`flex flex-col w-1/2 h-full rounded-lg transition border-4 ${
+                activeSpeaker === "salesman" ? "border-green-500" : "border-transparent"
+              }`}
+            >
               <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-[#FCE7E0] to-[#F4D4C8] rounded-lg p-8">
                 <img 
                   src={supportAgentAvatar.toDataUri()}
@@ -122,23 +134,27 @@ export default function Conversation() {
               </div>
             </div>
           </div>
+
           <div className="flex flex-row items-center justify-center w-full h-1/4 gap-12 text-black">
             <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black">
               Download
             </button>
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
-            onClick={handlePlayAudio}
+            <button 
+              className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
+              onClick={handlePlayAudio}
             >
               Play
             </button>
-            <button className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
-            onClick={handlePauseAudio}
+            <button 
+              className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
+              onClick={handlePauseAudio}
             >
               Pause
             </button>
             <button 
               className="flex items-center justify-center px-8 py-2 rounded-full bg-[#F4D4C8] border border-[#DDC4BC] shadow-md transition duration-300 ease-in-out hover:bg-[#E9C7B9] text-black"
-              onClick={handleAnalyticsClick}>
+              onClick={handleAnalyticsClick}
+            >
               Analytics
             </button>
           </div>
