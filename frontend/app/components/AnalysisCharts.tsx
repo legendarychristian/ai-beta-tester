@@ -140,7 +140,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
         plugins: {
           legend: { display: true, position: "right" },
           tooltip: {
-            callbacks: { 
+            callbacks: {
               label: (context) => `${context.dataset.label}: ${context.raw as number}%`
             },
           },
@@ -180,7 +180,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
           backgroundColor: colors,
         }],
       },
-      options: { 
+      options: {
         responsive: true,
         maintainAspectRatio: true,
         aspectRatio: 2,
@@ -206,7 +206,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
           backgroundColor: colors.slice(0, 2),
         }],
       },
-      options: { 
+      options: {
         responsive: true,
         maintainAspectRatio: true,
         aspectRatio: 2,
@@ -252,7 +252,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
           backgroundColor: colors.slice(0, 4),
         }],
       },
-      options: { 
+      options: {
         responsive: true,
         maintainAspectRatio: true,
         aspectRatio: 2,
@@ -355,7 +355,10 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
   }, [demographData]);
 
   return (
-    <div className="flex flex-wrap justify-center gap-10 py-10 bg-[#ECFCF8]">
+    <div className="flex flex-wrap justify-center gap-48 bg-[#ECFCF8]">
+      <div className="w-full flex justify-center items-center">
+        <h1 className="text-6xl font-thin font-openSans text-center pt-12">Demographic Analysis</h1>
+      </div>
       <div className="w-full md:w-1/3 flex flex-col items-center space-y-4 px-4">
         <h2 className="text-xl font-bold">Race - Bar Chart</h2>
         <canvas ref={refs.race}></canvas>
