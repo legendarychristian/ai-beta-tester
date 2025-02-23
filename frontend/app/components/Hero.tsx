@@ -1,12 +1,176 @@
 "use client";
-import { ArrowRight, X } from "lucide-react";
 import { useState, ChangeEvent, useEffect } from "react";
 import { useDemographic } from "../DemographicContext";
+
+import { useConversation } from "../context/ConversationContext";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, X } from "lucide-react";
+
+
+export default function Hero() {
+
+
+    
+    const { setDemographicData } = useDemographic();
+    const {
+        setConversationHistory,
+        setEvaluationResults,
+        setScores,
+        setSpeechSwitch,
+    } = useConversation();
+    
+    const router = useRouter();
+    const [pitch, setPitch] = useState("");
+    const [files, setFiles] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
+
+    const loadingPhases = [
+        "Brewing the perfect pitch...",
+        "Polishing your elevator speech...",
+        "Crunching numbers and wowing investors...",
+        "Almost there... adding a touch of brilliance...",
+        "Turning ideas into pitch-perfect words...",
+        "Sharpening your story to a fine point...",
+        "Turning coffee into compelling pitches...",
+        "Assembling buzzwords that actually make sense...",
+        "Spicing things up with some wow-factor...",
+        "Channeling startup energy...",
+        "Aligning synergies and leveraging paradigms...",
+        "Refining your pitch... because first impressions matter...",
+        "Optimizing for maximum head nods in the room...",
+        "Sprinkling in a dash of confidence...",
+        "Prepping jaw-dropping insights...",
+        "Making your pitch investor-friendly (and wallet-ready)...",
+        "Synthesizing brilliance with a touch of magic...",
+        "Distilling your vision into pure gold...",
+        "Ensuring your pitch is smoother than your coffee...",
+        "Brainstorm clouds clearing... sunshine incoming...",
+        "Finalizing the secret sauce recipe...",
+        "Hunting for those 'aha!' moments...",
+        "Recalibrating brilliance sensors...",
+        "Generating applause-worthy content...",
+        "Adding extra sparkle for dramatic effect...",
+        "Running a quick charisma check...",
+        "Cueing up the mic drop moment...",
+        "Formatting for maximum investor attention...",
+        "Dusting off jargon (and keeping it human)...",
+        "Wrapping it up with a bow and a smile...",
+      ];
+
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        // Toggle body scroll based on isSubmitting
+        if (isSubmitting) {
+            document.body.classList.add("no-scroll");
+
+            interval = setInterval(() => {
+                setCurrentPhaseIndex((prevIndex) => (prevIndex + 1) % loadingPhases.length);
+            }, 2500); // Loading phase update
+        } else {
+            document.body.classList.remove("no-scroll");
+        }
+
+        return () => {
+            clearInterval(interval); // Cleanup interval
+            document.body.classList.remove("no-scroll"); // Ensure scroll is enabled on unmount
+        };
+    }, [isSubmitting]);
+
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = event.target.files;
+        if (selectedFiles) {
+            const validFiles = Array.from(selectedFiles).filter((file) =>
+                file.type.startsWith("image/")
+            );
+
+            setFiles((prevFiles) => [...prevFiles, ...validFiles]);
+            setImagePreviews((prevPreviews) => [
+                ...prevPreviews,
+                ...validFiles.map((file) => URL.createObjectURL(file)),
+            ]);
+        }
+    };
+
+    const handleRemoveImage = (index: number) => {
+        setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+        setImagePreviews((prevPreviews) =>
+            prevPreviews.filter((_, i) => i !== index)
+        );
+    };
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
+        setCurrentPhaseIndex(0);
+
+        try {
+            const formData = new FormData();
+            formData.append("product_info", pitch);
+            files.forEach((file, index) => formData.append(`file_${index}`, file));
+
+            // Step 1: Get Conversation Results
+            const response = await fetch("http://localhost:8000/conversation/start", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) throw new Error(`Network error: ${response.status}`);
+
+            const responseData = await response.json();
+            console.log("✅ Full API response:", responseData);
+
+            // Store response data in context
+            if (responseData.convo_results) {
+                setConversationHistory(responseData.convo_results);
+            }
+            if (responseData.eval_results) {
+                setEvaluationResults(responseData.eval_results);
+            }
+            if (responseData.scores) {
+                setScores(responseData.scores);
+            }
+            if (responseData.demographic_analysis) {
+                setDemographicData(responseData.demographic_analysis);
+            } else {
+                console.warn("No demographic analysis found in response data.");
+            }
+
+            // Step 2: Fetch Best Conversation
+            const bestResponse = await fetch("http://localhost:8000/conversation/get_best_conversation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    convo_history: responseData.convo_results,
+                    scores: responseData.scores,
+                }),
+            });
+
+            if (!bestResponse.ok) throw new Error(`Network error: ${bestResponse.status}`);
+
+            const bestData = await bestResponse.json();
+            const bestResult = bestData.result;
+            console.log("🔥 Best Conversation:", bestResult);
+
+            // Step 3: Convert Best Conversation to Speech
+            const speechResponse = await fetch("http://localhost:8000/conversation/convert", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ conversation: bestResult }),
+            });
+
+            const speechData = await speechResponse.json();
+            if (speechData.speech_switch) {
+                setSpeechSwitch(speechData.speech_switch);
+            }
 
 interface HeroProps {
   onLoadingComplete: () => void;
 }
+
 
 export default function Hero({ onLoadingComplete }: HeroProps) {
   const { setDemographicData } = useDemographic();
@@ -163,13 +327,6 @@ export default function Hero({ onLoadingComplete }: HeroProps) {
                   alt={`Uploaded Preview ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
-                <button
-                  onClick={() => handleRemoveImage(index)}
-                  className="absolute top-1 right-1 w-6 h-6 flex justify-center items-center rounded-full bg-black text-white hover:bg-gray-800 shadow transition"
-                  title="Remove image"
-                >
-                  <X size={14} />
-                </button>
               </div>
             ))}
           </div>
