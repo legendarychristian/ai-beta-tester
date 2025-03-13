@@ -25,7 +25,7 @@ export default function Conversation() {
   const handlePlayAudio = async () => {
     try {
       if (!audioUrl) {
-        const playResponse = await fetch("http://localhost:8000/conversation/play");
+        const playResponse = await fetch("https://pitchpropel.com/conversation/play");
         if (!playResponse.ok) {
           throw new Error("Failed to fetch audio");
         }

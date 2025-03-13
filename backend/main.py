@@ -2,20 +2,21 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List, Dict
-from gemini import evaluate_multiple_pitches, process_convo
-from util import calculate_scores, analyze_demographics_with_defaults
+from backend.gemini import evaluate_multiple_pitches, process_convo
+from backend.util import calculate_scores, analyze_demographics_with_defaults
 from fastapi.responses import FileResponse
 import boto3
 from pydub import AudioSegment
 import os
 import numpy as np
+import traceback
 
 app = FastAPI()
 
 # CORS setup to allow requests from your frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with your frontend URL in production
+    allow_origins=["http://localhost:3002", "https://pitchpropel.com"],  # Specific origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,6 +31,8 @@ polly_client = boto3.Session(
     region_name='us-east-1').client('polly')
 
 AUDIO_FILE_PATH = os.path.join(AUDIO_DIR, "final_conversation.wav")
+print(os.environ['AWS_ACCESS_KEY_ID'])
+print(os.environ['AWS_SECRET_ACCESS_KEY'])
 
 @app.get("/conversation/play")
 async def play_conversation():
@@ -146,11 +149,16 @@ async def text_to_speech(data: ConversationRequest):
     """
     Converts conversation history into a single WAV file.
     """
+    os.makedirs(AUDIO_DIR, exist_ok=True)
+
     try:
+        print(os.environ['AWS_ACCESS_KEY_ID'])
+        print(os.environ['AWS_SECRET_ACCESS_KEY'])
+
         conversation = data.conversation  # Extract conversation object
         speech_switch = [1]
         combined_audio = AudioSegment.silent(duration=0)
-
+        print(combined_audio)
         if "chat_history" not in conversation or not isinstance(conversation["chat_history"], list):
             raise HTTPException(status_code=400, detail="Invalid chat_history format")
 
@@ -165,11 +173,15 @@ async def text_to_speech(data: ConversationRequest):
                 continue
             if not parts:
                 continue  # Skip empty messages
-
+            
+            print("BEFORE CHAT TEXTTTT!!!!!!")
             chat_text = parts[0]  # Assume each message has one text part
 
             # Determine Polly voice
             voice = "Matthew" if role == "user" else ("Stephen" if buyer_gender == "Male" else "Ruth")
+            print(f"AFTEERRRR VOICE{voice, role, buyer_gender}")
+            
+            
 
             # Call AWS Polly to synthesize speech
             response = polly_client.synthesize_speech(
@@ -178,20 +190,30 @@ async def text_to_speech(data: ConversationRequest):
                 Text=chat_text,
                 Engine="generative"
             )
+            
+            print(f'response status: {response}')
 
             # Save MP3 file temporarily
             temp_audio_path = os.path.join(AUDIO_DIR, f"audio_{index}.mp3")
-            with open(temp_audio_path, "wb") as file:
-                file.write(response["AudioStream"].read())
+            print(f'{temp_audio_path}')
+            if "AudioStream" in response:
+                with open(temp_audio_path, "wb") as file:
+                    file.write(response["AudioStream"].read())
+            else:
+                raise HTTPException(status_code=500, detail="Polly response missing AudioStream.")
+            
+            # with open(temp_audio_path, "wb") as file:
+            #     file.write(response["AudioStream"].read())
 
             # Append to the combined audio file
             clip = AudioSegment.from_mp3(temp_audio_path)
             combined_audio += clip + AudioSegment.silent(duration=200)
             speech_switch.append(len(combined_audio))  # Store speech timing
 
-        print(f'speed switch: {speech_switch}')
-        # Export the final WAV file
+            print(f'speed switch: {speech_switch}')
+            # Export the final WAV file
         output_path = os.path.join(AUDIO_DIR, "final_conversation.wav")
+        print(f'OUTPUT HERE: {output_path}')
         combined_audio.export(output_path, format="wav")
 
         return {
@@ -203,7 +225,10 @@ async def text_to_speech(data: ConversationRequest):
         raise HTTPException(status_code=400, detail=f"Missing field: {str(e)}")
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_message = traceback.format_exc()  # Get full error details
+        print("FULL ERROR TRACEBACK:\n", error_message)  # Log full error in terminal
+        raise HTTPException(status_code=500, detail=error_message)
+        # raise HTTPException(status_code=500, detail=str(e))
     
 
 if __name__ == "__main__":

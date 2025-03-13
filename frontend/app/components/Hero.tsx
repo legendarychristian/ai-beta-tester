@@ -105,7 +105,7 @@ export default function Hero({ onLoadingComplete }: HeroProps) {
             files.forEach((file, index) => formData.append(`file_${index}`, file));
 
             // Step 1: Get Conversation Results
-            const response = await fetch("http://localhost:8000/conversation/start", {
+            const response = await fetch("https://pitchpropel.com/conversation/start", {
                 method: "POST",
                 body: formData,
             });
@@ -130,7 +130,7 @@ export default function Hero({ onLoadingComplete }: HeroProps) {
             }
 
             // Step 2: Fetch Best Conversation
-            const bestResponse = await fetch("http://localhost:8000/conversation/get_best_conversation", {
+            const bestResponse = await fetch("https://pitchpropel.com/conversation/get_best_conversation", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -148,7 +148,7 @@ export default function Hero({ onLoadingComplete }: HeroProps) {
             setBestResult(bestResult);
 
             // Step 3: Convert Best Conversation to Speech
-            const speechResponse = await fetch("http://localhost:8000/conversation/convert", {
+            const speechResponse = await fetch("https://pitchpropel.com/conversation/convert", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ conversation: bestResult }),
