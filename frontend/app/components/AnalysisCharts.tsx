@@ -1,6 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { useDemographic } from "../context/DemographicContext";
+import { useEffect, useRef, useState } from "react";
 
 import {
   Chart,
@@ -49,6 +48,8 @@ const ensureNumber = (value: unknown): number => {
 };
 
 export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
+  const [windowWidth, setWindowWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 0);
+  
   const refs = {
     race: useRef<HTMLCanvasElement>(null),
     sex: useRef<HTMLCanvasElement>(null),
@@ -63,6 +64,18 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
   };
 
   const chartInstancesRef = useRef<Record<string, Chart>>({});
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const createChart = (
     canvas: HTMLCanvasElement | null,
@@ -87,6 +100,11 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
 
     const data = demographData;
     const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40", "#C9CBCF"];
+    
+    // Adjust legend display based on screen size
+    const isMobile = windowWidth < 768;
+    const legendPosition = isMobile ? 'bottom' : 'right';
+    const pieAspectRatio = isMobile ? 1 : 2;
 
     // Race Chart
     createChart(refs.race.current, {
@@ -102,8 +120,20 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        layout: { padding: { left: 20, right: 20 } },
-        scales: { y: { beginAtZero: true, ticks: { padding: 10 } } },
+        layout: { padding: isMobile ? { left: 10, right: 10 } : { left: 20, right: 20 } },
+        scales: { 
+          y: { 
+            beginAtZero: true, 
+            ticks: { padding: 10 } 
+          },
+          x: {
+            ticks: {
+              autoSkip: true,
+              maxRotation: 90,
+              minRotation: isMobile ? 45 : 0
+            }
+          }
+        },
         plugins: { legend: { display: false } },
       },
     }, "raceChart");
@@ -123,13 +153,13 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
         indexAxis: "y" as const,
         responsive: true,
         maintainAspectRatio: true,
-        layout: { padding: { left: 30, right: 30 } },
+        layout: { padding: isMobile ? { left: 15, right: 15 } : { left: 30, right: 30 } },
         scales: {
           x: {
             stacked: true,
             beginAtZero: true,
             max: 100,
-            title: { display: true, text: "Percentage (%)" },
+            title: { display: !isMobile, text: "Percentage (%)" },
             ticks: { callback: (value) => `${value}%` },
           },
           y: {
@@ -138,7 +168,7 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
           },
         },
         plugins: {
-          legend: { display: true, position: "right" },
+          legend: { display: true, position: legendPosition },
           tooltip: {
             callbacks: {
               label: (context) => `${context.dataset.label}: ${context.raw as number}%`
@@ -165,8 +195,20 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        layout: { padding: { left: 20, right: 20 } },
-        scales: { y: { beginAtZero: true, ticks: { padding: 10 } } },
+        layout: { padding: isMobile ? { left: 10, right: 10 } : { left: 20, right: 20 } },
+        scales: { 
+          y: { 
+            beginAtZero: true, 
+            ticks: { padding: 10 } 
+          },
+          x: {
+            ticks: {
+              autoSkip: true,
+              maxRotation: 90,
+              minRotation: isMobile ? 45 : 0
+            }
+          }
+        },
       },
     }, "ageChart");
 
@@ -183,20 +225,20 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        aspectRatio: 2,
+        aspectRatio: pieAspectRatio,
         plugins: {
           legend: {
-            position: 'right',
+            position: legendPosition,
             labels: {
               boxWidth: 12,
-              padding: 15
+              padding: isMobile ? 8 : 15
             }
           }
         }
       },
     }, "politicalChart");
 
-    // Marital Status Chart
+    // Children Chart
     createChart(refs.children.current, {
       type: "pie" as const,
       data: {
@@ -209,13 +251,13 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        aspectRatio: 2,
+        aspectRatio: pieAspectRatio,
         plugins: {
           legend: {
-            position: 'right',
+            position: legendPosition,
             labels: {
               boxWidth: 12,
-              padding: 15
+              padding: isMobile ? 8 : 15
             }
           }
         }
@@ -236,8 +278,20 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        layout: { padding: { left: 20, right: 20 } },
-        scales: { y: { beginAtZero: true, ticks: { padding: 10 } } },
+        layout: { padding: isMobile ? { left: 10, right: 10 } : { left: 20, right: 20 } },
+        scales: { 
+          y: { 
+            beginAtZero: true, 
+            ticks: { padding: 10 } 
+          },
+          x: {
+            ticks: {
+              autoSkip: true,
+              maxRotation: 90,
+              minRotation: isMobile ? 45 : 0
+            }
+          }
+        },
         plugins: { legend: { display: false } },
       },
     }, "incomeChart");
@@ -255,13 +309,13 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        aspectRatio: 2,
+        aspectRatio: pieAspectRatio,
         plugins: {
           legend: {
-            position: 'right',
+            position: legendPosition,
             labels: {
               boxWidth: 12,
-              padding: 15
+              padding: isMobile ? 8 : 15
             }
           }
         }
@@ -282,8 +336,20 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        layout: { padding: { left: 20, right: 20 } },
-        scales: { y: { beginAtZero: true, ticks: { padding: 10 } } },
+        layout: { padding: isMobile ? { left: 10, right: 10 } : { left: 20, right: 20 } },
+        scales: { 
+          y: { 
+            beginAtZero: true, 
+            ticks: { padding: 10 } 
+          },
+          x: {
+            ticks: {
+              autoSkip: true,
+              maxRotation: 90,
+              minRotation: isMobile ? 45 : 0
+            }
+          }
+        },
         plugins: { legend: { display: false } },
       },
     }, "religionChart");
@@ -303,10 +369,16 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
         indexAxis: "y" as const,
         responsive: true,
         maintainAspectRatio: true,
-        layout: { padding: { left: 30, right: 30 } },
+        layout: { padding: isMobile ? { left: 15, right: 15 } : { left: 30, right: 30 } },
         scales: {
           x: { beginAtZero: true },
-          y: { ticks: { autoSkip: false, padding: 15 } },
+          y: { 
+            ticks: { 
+              autoSkip: isMobile, 
+              maxTicksLimit: isMobile ? 8 : undefined,
+              padding: 15 
+            } 
+          },
         },
         plugins: { legend: { display: false } },
       },
@@ -327,19 +399,19 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
         indexAxis: "y" as const,
         responsive: true,
         maintainAspectRatio: true,
-        layout: { padding: { left: 40, right: 40 } },
+        layout: { padding: isMobile ? { left: 20, right: 20 } : { left: 40, right: 40 } },
         scales: {
           x: {
             stacked: true,
             beginAtZero: true,
             max: 100,
-            title: { display: true, text: "Percentage (%)" },
+            title: { display: !isMobile, text: "Percentage (%)" },
             ticks: { callback: (value) => `${value}%` },
           },
           y: { stacked: true, ticks: { padding: 15 } },
         },
         plugins: {
-          legend: { display: true, position: "right" },
+          legend: { display: true, position: legendPosition },
           tooltip: {
             callbacks: {
               label: (context) => `${context.dataset.label}: ${context.raw as number}%`
@@ -352,103 +424,107 @@ export default function AnalysisCharts({ demographData }: AnalysisChartsProps) {
     return () => {
       Object.values(chartInstancesRef.current).forEach((chart) => chart.destroy());
     };
-  }, [demographData]);
+  }, [demographData, windowWidth]);
 
   return (
-    <div className="w-full p-8 bg-transparent">
-      <h1 className="text-4xl font-openSans font-thin text-center mb-12">Demographic Analysis</h1>
+    <div className="bg-gradient-to-b from-[#FDECE6] via-[#FDECE6] to-[#F9D7C8] text-purple-800">
+      <section className="min-h-screen font-openSans text-center px-2 sm:px-4">
+        <div className="w-full p-4 sm:p-8 bg-transparent">
+          <h1 className="text-3xl sm:text-4xl font-openSans font-thin text-center mb-8 sm:mb-12">Demographic Analysis</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Race */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Race</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.race} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
+            {/* Race */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Race</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.race} />
+                </div>
+              </div>
+            </div>
+
+            {/* Sex */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Sex</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.sex} />
+                </div>
+              </div>
+            </div>
+
+            {/* Age */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Age</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.age} />
+                </div>
+              </div>
+            </div>
+
+            {/* Political */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Political Affiliation</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.political} />
+                </div>
+              </div>
+            </div>
+
+            {/* Income */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Income</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.income} />
+                </div>
+              </div>
+            </div>
+
+            {/* Marital Status */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Marital Status</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.maritalStatus} />
+                </div>
+              </div>
+            </div>
+
+            {/* Religion */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Religion</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.religion} />
+                </div>
+              </div>
+            </div>
+
+            {/* Industry */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Industry</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.industry} />
+                </div>
+              </div>
+            </div>
+
+            {/* Property Owner */}
+            <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
+              <h2 className="text-lg sm:text-xl font-openSans font-thin mb-2 sm:mb-4 text-center">Property Ownership</h2>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full">
+                  <canvas ref={refs.propertyOwner} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Sex */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Sex</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.sex} />
-            </div>
-          </div>
-        </div>
-
-        {/* Age */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Age</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.age} />
-            </div>
-          </div>
-        </div>
-
-        {/* Political */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Political Affiliation</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.political} />
-            </div>
-          </div>
-        </div>
-
-        {/* Income */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Income</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.income} />
-            </div>
-          </div>
-        </div>
-
-        {/* Marital Status */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Marital Status</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.maritalStatus} />
-            </div>
-          </div>
-        </div>
-
-        {/* Religion */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Religion</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.religion} />
-            </div>
-          </div>
-        </div>
-
-        {/* Industry */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Industry</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.industry} />
-            </div>
-          </div>
-        </div>
-
-        {/* Property Owner */}
-        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-lg flex flex-col bg-[#E8F8FF]">
-          <h2 className="text-xl font-openSans font-thin mb-4 text-center">Property Ownership</h2>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-full">
-              <canvas ref={refs.propertyOwner} />
-            </div>
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

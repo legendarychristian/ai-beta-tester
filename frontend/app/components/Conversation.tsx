@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useConversation } from "../context/ConversationContext";
 import { createAvatarFromConfig, avatarConfigs } from "./avatarConfig";
 import AnalysisCharts from "./AnalysisCharts";
-import { useDemographic } from "../DemographicContext";
+import { useDemographic } from "../context/DemographicContext";
 
 export default function Conversation() {
   const router = useRouter();
@@ -141,7 +141,7 @@ export default function Conversation() {
 
   return (
     <div>
-      <section className="min-h-screen bg-gradient-to-b from-[#FDECE6] via-[#FDECE6] to-[#F9D7C8] font-openSans text-center px-4">
+      {/* <section className="min-h-screen bg-gradient-to-b from-[#FDECE6] via-[#FDECE6] to-[#F9D7C8] font-openSans text-center px-4">
         <div className="h-screen flex justify-center">
           <div className="flex flex-col w-full h-full">
             <h1 className="text-8xl md:text-4xl font-openSans font-thin text-purple-800 mb-8 py-16">
@@ -149,7 +149,6 @@ export default function Conversation() {
             </h1>
 
             <div className="flex flex-row w-full h-3/4 gap-48 px-24">
-              {/* Salesperson Box */}
               <div
                 className={`flex flex-col w-1/2 h-full rounded-lg transition border-4 ${activeSpeaker === "salesman" ? "border-green-500" : "border-transparent"
                   }`}
@@ -164,7 +163,6 @@ export default function Conversation() {
                 </div>
               </div>
 
-              {/* Customer Box */}
               <div
                 className={`flex flex-col w-1/2 h-full rounded-lg transition border-4 ${activeSpeaker === "customer" ? "border-green-500" : "border-transparent"
                   }`}
@@ -206,12 +204,7 @@ export default function Conversation() {
             </div>
           </div>
         </div>
-      </section>
-      <div className=" bg-gradient-to-b from-[#F9D7C8] via-[#C8E9F1] to-[#E8F8FF] text-black">
-        <section className="min-h-screen font-openSans text-center px-4">
-          <AnalysisCharts demographData={demographicData} />
-        </section>
-      </div>
+      </section> */}
     </div>
   );
 }

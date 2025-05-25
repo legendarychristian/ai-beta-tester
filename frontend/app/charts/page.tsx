@@ -1,7 +1,7 @@
 "use client";
 import AnalysisCharts from "../components/AnalysisCharts";
 import { useState, useEffect } from 'react';
-import { useDemographic } from "../DemographicContext";
+import { useDemographic } from "../context/DemographicContext";
 import LoadingScreen from '../components/LoadingScreen';
 
 export default function Charts() {

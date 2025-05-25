@@ -1,26 +1,33 @@
 "use client";
 import { useEffect, useRef } from "react";
 import Hero from "./components/Hero";
-import Conversation from "./components/Conversation";
+import AnalysisCharts from "./components/AnalysisCharts";
+import { useDemographic } from "./context/DemographicContext";
+
 export default function Home() {
-  const conversationRef = useRef<HTMLDivElement>(null);
+  const chartsRef = useRef<HTMLDivElement>(null);
+  const { demographicData } = useDemographic();
 
   useEffect(() => {
     document.body.classList.add("no-scroll"); // Default: no scroll
   }, []);
 
-  const scrollToConversation = () => {
-    conversationRef.current?.scrollIntoView({
+  const scrollToCharts = () => {
+    chartsRef.current?.scrollIntoView({
       behavior: "smooth",
+      block: "start",
     });
   };
 
   return (
     <div>
-      <Hero onLoadingComplete={scrollToConversation} />
-      <div ref={conversationRef}>
-        <Conversation />
+      <Hero onLoadingComplete={scrollToCharts} />
+      <div ref={chartsRef}>
+        <AnalysisCharts demographData={demographicData} />
       </div>
+      {/* <div ref={conversationRef}>
+        <Conversation />
+      </div> */}
     </div>
   );
 }

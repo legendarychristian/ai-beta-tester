@@ -261,7 +261,7 @@ async def process_convo(product_info: str, product_image = None):
     personas = []
     # print(product_image.file, product_image.content_type)
 
-    for _ in range(int(5)):
+    for _ in range(int(20)):
         persona = create_persona()
         personas.append(persona)
 

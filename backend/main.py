@@ -10,6 +10,26 @@ from pydub import AudioSegment
 import os
 import numpy as np
 import traceback
+import shutil
+
+def clear_audio_files():
+    AUDIO_DIR = os.path.join(BASE_DIR, "audio_files")
+    
+    # Ensure the directory exists
+    if os.path.exists(AUDIO_DIR) and os.path.isdir(AUDIO_DIR):
+        for file_name in os.listdir(AUDIO_DIR):
+            file_path = os.path.join(AUDIO_DIR, file_name)
+            try:
+                if os.path.isfile(file_path):  # Ensure it's a file, not a folder
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):  # If there are subdirectories, remove them
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print(f"Failed to delete {file_path}: {e}")
+
+        print(f"All files in {AUDIO_DIR} have been deleted.")
+    else:
+        print(f"Directory {AUDIO_DIR} does not exist.")
 
 app = FastAPI()
 
@@ -65,6 +85,7 @@ async def start_conversation(
 ):
     try:
         if file:
+            clear_audio_files()
             # content = await file.read()
             # Optionally save or process the file here
             print(f"Received file: {file.filename}")
